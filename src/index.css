@@ -2,41 +2,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --primary: #16a34a;
-  --primary-light: #22c55e;
-  --primary-dark: #15803d;
-  --secondary: #f97316;
-  --accent: #0d9488;
-  --accent2: #f59e0b;
+  /* One confident accent instead of a four-colour rainbow (green/orange/teal/amber).
+     A deep, slightly muted forest green reads as deliberate and professional where the
+     old neon green + gradients read as an unfinished template. */
+  --primary: #1c5c42;
+  --primary-light: #2f7d56;
+  --primary-dark: #133f2d;
+  --secondary: #a86a1d;   /* warm bronze — used sparingly, for the one or two spots that want to stand apart from primary */
+  --accent: #1c5c42;      /* same family as primary on purpose: one accent system, not three */
+  --accent2: #a86a1d;
 
-  --bg: #ffffff;
-  --bg2: #f9fafb;
-  --bg3: #f3f4f6;
+  /* A warm off-white instead of stark white, with white cards sitting on top of it —
+     this is what gives a page depth without needing coloured glows to separate sections. */
+  --bg: #faf8f4;
+  --bg2: #f3f0e8;
+  --bg3: #ece7db;
   --surface: #ffffff;
-  --surface2: #f3f4f6;
-  --surface3: #e5e7eb;
+  --surface2: #f6f3ec;
+  --surface3: #ece7db;
 
-  --border: rgba(22, 163, 74, 0.18);
-  --border-light: rgba(0,0,0,0.08);
+  --border: rgba(28, 92, 66, 0.16);
+  --border-light: rgba(26, 22, 15, 0.09);
 
-  --text: #111827;
-  --text2: #6b7280;
-  --text3: #9ca3af;
+  --text: #1a1712;
+  --text2: #5c584e;
+  --text3: #8a8577;
 
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --error: #dc2626;
+  --success: #1c5c42;
+  --warning: #a86a1d;
+  --error: #a3312a;
 
-  --glow: 0 0 40px rgba(22, 163, 74, 0.2);
-  --glow-accent: 0 0 40px rgba(13, 148, 136, 0.2);
+  --glow: none;
+  --glow-accent: none;
 
-  --radius: 16px;
-  --radius-sm: 10px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
 
-  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: all 0.2s ease;
+  --transition-slow: all 0.35s ease;
 }
 
 *, *::before, *::after {
@@ -65,25 +70,33 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 99px; }
 
 /* Typography */
-h1, h2, h3, h4, h5 { font-family: 'Outfit', sans-serif; font-weight: 700; line-height: 1.2; }
+h1, h2, h3, h4, h5 { font-family: 'Outfit', sans-serif; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+
+/* A small uppercase label — "PLATFORM FEATURES", "STEP 1 OF 4" — used instead of a
+   pill-shaped emoji badge for the quieter, more editorial tone a plain colour+tracking
+   label gives a page. */
+.eyebrow-label {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
 
 /* Utility */
 .gradient-text {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary);
 }
 
 .glass {
-  background: rgba(0,0,0,0.03);
+  background: rgba(255,255,255,0.6);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-light);
 }
 
 .glow-border {
   border: 1px solid var(--primary);
-  box-shadow: var(--glow);
 }
 
 /* Buttons */
@@ -104,50 +117,42 @@ h1, h2, h3, h4, h5 { font-family: 'Outfit', sans-serif; font-weight: 700; line-h
   overflow: hidden;
   white-space: nowrap;
 }
-.btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  background: rgba(0,0,0,0.06);
-  transition: var(--transition);
-}
-.btn:hover::after { opacity: 1; }
-.btn:active { transform: scale(0.97); }
+.btn:active { transform: scale(0.98); }
 
+/* Solid fills, not gradients — a flat colour reads as a deliberate choice, a gradient
+   reads as a default nobody turned off. */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: var(--primary);
   color: #fff;
-  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.3);
 }
-.btn-primary:hover { box-shadow: 0 6px 30px rgba(22, 163, 74, 0.45); transform: translateY(-2px); }
+.btn-primary:hover { background: var(--primary-dark); }
 
 .btn-secondary {
-  background: var(--surface2);
+  background: var(--surface);
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-light);
 }
-.btn-secondary:hover { border-color: var(--primary); background: var(--surface3); }
+.btn-secondary:hover { border-color: var(--primary); color: var(--primary-dark); }
 
 .btn-accent {
-  background: linear-gradient(135deg, var(--accent), #0f766e);
+  background: var(--secondary);
   color: #fff;
   font-weight: 700;
-  box-shadow: 0 4px 20px rgba(13, 148, 136, 0.25);
 }
-.btn-accent:hover { box-shadow: 0 6px 30px rgba(13, 148, 136, 0.4); transform: translateY(-2px); }
+.btn-accent:hover { background: #8a5717; }
 
 .btn-outline {
   background: transparent;
   color: var(--primary-dark);
   border: 1px solid var(--primary);
 }
-.btn-outline:hover { background: rgba(22,163,74,0.08); }
+.btn-outline:hover { background: rgba(28, 92, 66, 0.08); }
 
 .btn-danger {
-  background: linear-gradient(135deg, var(--error), #b91c1c);
+  background: var(--error);
   color: #fff;
 }
+.btn-danger:hover { background: #7f2620; }
 
 .btn-sm { padding: 8px 16px; font-size: 13px; }
 .btn-lg { padding: 16px 32px; font-size: 17px; border-radius: var(--radius); }
@@ -199,17 +204,17 @@ select.form-input { appearance: none; cursor: pointer; }
   transition: var(--transition);
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
-.card:hover { border-color: var(--border); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+.card:hover { border-color: var(--border); box-shadow: 0 6px 16px rgba(26,23,18,0.06); }
 
 .card-glow {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
-  box-shadow: var(--glow);
 }
 
-/* Badges */
+/* Badges — a plain tint and no border reads calmer than a filled pill with its own
+   outline; the colour alone is enough to carry the meaning. */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -217,13 +222,14 @@ select.form-input { appearance: none; cursor: pointer; }
   padding: 4px 12px;
   border-radius: 99px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
-.badge-primary { background: rgba(22,163,74,0.1); color: var(--primary-dark); border: 1px solid rgba(22,163,74,0.3); }
-.badge-accent { background: rgba(13,148,136,0.1); color: var(--accent); border: 1px solid rgba(13,148,136,0.3); }
-.badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
-.badge-error { background: rgba(220,38,38,0.1); color: var(--error); border: 1px solid rgba(220,38,38,0.3); }
-.badge-success { background: rgba(22,163,74,0.1); color: var(--success); border: 1px solid rgba(22,163,74,0.3); }
+.badge-primary { background: rgba(28,92,66,0.1); color: var(--primary-dark); }
+.badge-accent { background: rgba(28,92,66,0.1); color: var(--primary-dark); }
+.badge-warning { background: rgba(168,106,29,0.12); color: var(--warning); }
+.badge-error { background: rgba(163,49,42,0.1); color: var(--error); }
+.badge-success { background: rgba(28,92,66,0.1); color: var(--success); }
 
 /* Alert */
 .alert {
@@ -235,8 +241,8 @@ select.form-input { appearance: none; cursor: pointer; }
   align-items: center;
   gap: 10px;
 }
-.alert-success { background: rgba(22,163,74,0.1); border: 1px solid rgba(22,163,74,0.3); color: var(--primary-dark); }
-.alert-error { background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.3); color: var(--error); }
+.alert-success { background: rgba(28,92,66,0.1); border: 1px solid rgba(28,92,66,0.25); color: var(--primary-dark); }
+.alert-error { background: rgba(163,49,42,0.1); border: 1px solid rgba(163,49,42,0.25); color: var(--error); }
 
 /* Layout */
 .container {

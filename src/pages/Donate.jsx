@@ -158,7 +158,7 @@ const Donate = () => {
         name: 'NGOConnect',
         description: `Donation to ${selectedNGO.ngoName}`,
         prefill: { name: user.fullName || '', email: user.email || '' },
-        theme: { color: '#16a34a' },
+        theme: { color: '#1c5c42' },
         handler: async (response) => {
           try {
             await api.post('/donations/verify', {
@@ -317,7 +317,7 @@ const Donate = () => {
                 </p>
               )}
 
-              {submitError && <p className="no-results" style={{ color: 'var(--error, #dc2626)' }}>{submitError}</p>}
+              {submitError && <p className="no-results" style={{ color: 'var(--error, #a3312a)' }}>{submitError}</p>}
             </div>
           )}
 

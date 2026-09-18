@@ -99,7 +99,7 @@ const Wallet = () => {
         name: 'NGOConnect',
         description: `Wallet top-up of ₹${currentAmount}`,
         prefill: { name: user.fullName || '', email: user.email || '' },
-        theme: { color: '#16a34a' },
+        theme: { color: '#1c5c42' },
         handler: async (response) => {
           try {
             const verified = await api.post('/wallet/topup/verify', {

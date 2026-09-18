@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import {
+  Building2, UserRound, CalendarDays, CheckCircle2, Users, Ticket, HeartHandshake,
+  XCircle, Clock, Upload, X,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import './Dashboard.css';
@@ -283,18 +287,16 @@ const Dashboard = () => {
       <div className="dashboard-sidebar">
         <div className="user-profile">
           <div className="avatar-editable">
-            <Avatar src={avatarUrl} name={displayName} size={72} variant={isNGO ? 'account' : 'person'} />
-            {isNGO && (
-              <button className="avatar-edit-btn" onClick={() => setShowAvatarPicker(true)} title="Change picture">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
-                </svg>
-              </button>
-            )}
+            <Avatar src={avatarUrl} name={displayName} size={72} />
+            <button className="avatar-edit-btn" onClick={() => setShowAvatarPicker(true)} title="Change picture">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </button>
           </div>
           <h2>{displayName}</h2>
-          <span className="role-badge">{isNGO ? '🏢 NGO' : '👤 User'}</span>
+          <span className="role-badge">{isNGO ? <><Building2 size={13} /> NGO</> : <><UserRound size={13} /> User</>}</span>
           <p className="email">{user.email}</p>
         </div>
         <nav className="dashboard-nav">
@@ -318,21 +320,21 @@ const Dashboard = () => {
           <div className="ngo-dashboard animate-fade-in">
             <div className="stats-grid">
               <div className="stat-card">
-                <div className="stat-icon">📅</div>
+                <div className="stat-icon"><CalendarDays size={20} strokeWidth={1.8} /></div>
                 <div className="stat-info">
                   <h3>Total Events</h3>
                   <p className="stat-value">{events.length}</p>
                 </div>
               </div>
               <div className="stat-card">
-                <div className="stat-icon">✅</div>
+                <div className="stat-icon"><CheckCircle2 size={20} strokeWidth={1.8} /></div>
                 <div className="stat-info">
                   <h3>Active Events</h3>
                   <p className="stat-value">{events.filter(e => e.active).length}</p>
                 </div>
               </div>
               <div className="stat-card">
-                <div className="stat-icon">👥</div>
+                <div className="stat-icon"><Users size={20} strokeWidth={1.8} /></div>
                 <div className="stat-info">
                   <h3>Total Enrolled</h3>
                   <p className="stat-value">{events.reduce((s, e) => s + (e.enrolledCount || 0), 0)}</p>
@@ -353,7 +355,7 @@ const Dashboard = () => {
               <h2>My Events</h2>
               {events.length === 0 ? (
                 <div className="empty-state">
-                  <span>📅</span>
+                  <CalendarDays size={32} strokeWidth={1.5} />
                   <p>No events posted yet. Click <strong>Post Event</strong> to create your first event.</p>
                 </div>
               ) : (
@@ -382,14 +384,14 @@ const Dashboard = () => {
           <div className="user-dashboard animate-fade-in">
             <div className="stats-grid">
               <div className="stat-card">
-                <div className="stat-icon">🎟️</div>
+                <div className="stat-icon"><Ticket size={20} strokeWidth={1.8} /></div>
                 <div className="stat-info">
                   <h3>Events Enrolled</h3>
                   <p className="stat-value">{enrollments.length}</p>
                 </div>
               </div>
               <div className="stat-card">
-                <div className="stat-icon">💸</div>
+                <div className="stat-icon"><HeartHandshake size={20} strokeWidth={1.8} /></div>
                 <div className="stat-info">
                   <h3>Donations Made</h3>
                   <p className="stat-value">{donations.length}</p>
@@ -402,7 +404,7 @@ const Dashboard = () => {
                 <h2>My Enrolled Events</h2>
                 {enrollments.length === 0 ? (
                   <div className="empty-state">
-                    <span>🎟️</span>
+                    <Ticket size={32} strokeWidth={1.5} />
                     <p>You haven't enrolled in any events yet. <Link to="/events">Browse events →</Link></p>
                   </div>
                 ) : (
@@ -412,7 +414,9 @@ const Dashboard = () => {
                         <div className="event-date">{formatDate(en.enrolledAt)}</div>
                         <div className="event-details">
                           <h4>Event ID: {en.eventId}</h4>
-                          <p>{en.attended === true ? '✅ Attended' : en.attended === false ? '❌ Marked Absent' : '⏳ Upcoming'}</p>
+                          <p className="attendance-status">
+                            {en.attended === true ? <><CheckCircle2 size={14} /> Attended</> : en.attended === false ? <><XCircle size={14} /> Marked Absent</> : <><Clock size={14} /> Upcoming</>}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -424,7 +428,7 @@ const Dashboard = () => {
                 <h2>Donation History</h2>
                 {donations.length === 0 ? (
                   <div className="empty-state">
-                    <span>💸</span>
+                    <HeartHandshake size={32} strokeWidth={1.5} />
                     <p>No donations yet. <Link to="/donate">Make your first donation →</Link></p>
                   </div>
                 ) : (
@@ -577,13 +581,13 @@ const Dashboard = () => {
                 <div key={item.id} className="media-gallery-card">
                   {item.mediaType === 'IMAGE'
                     ? <img src={item.mediaUrl} alt={item.caption || 'NGO photo'} style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 8 }} />
-                    : <div style={{ height: 160, background: 'rgba(22,163,74,0.15)', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    : <div style={{ height: 160, background: 'rgba(28, 92, 66,0.15)', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                         <span style={{ fontSize: 36 }}>🎬</span>
                         <a href={item.mediaUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', fontSize: 13 }}>Watch Video ↗</a>
                       </div>
                   }
                   {item.caption && <p style={{ fontSize: 12, color: 'var(--text2, #b0b0cc)', marginTop: 6 }}>{item.caption}</p>}
-                  <button onClick={() => handleDeleteMedia(item)} style={{ marginTop: 6, background: 'none', border: '1px solid var(--error, #ff6b6b)', color: 'var(--error, #ff6b6b)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: 12 }}>✕ Remove</button>
+                  <button onClick={() => handleDeleteMedia(item)} style={{ marginTop: 6, background: 'none', border: '1px solid var(--error)', color: 'var(--error)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}><X size={12} /> Remove</button>
                 </div>
               ))}
             </div>
@@ -607,7 +611,7 @@ const Dashboard = () => {
             {avatarError && <p className="wallet-message error">{avatarError}</p>}
 
             <label className={`avatar-upload-btn ${avatarBusy ? 'busy' : ''}`}>
-              {avatarBusy ? 'Working…' : '⬆ Upload an image'}
+              {avatarBusy ? 'Working…' : <><Upload size={14} /> Upload an image</>}
               {/* The input is visually hidden and driven by this label, because a raw file input
                   cannot be styled consistently across browsers. */}
               <input type="file" accept="image/*" hidden disabled={avatarBusy} onChange={handleAvatarFile} />

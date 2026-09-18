@@ -13,7 +13,7 @@
 .needs-header h1 {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
-  color: var(--primary, #6c47ff);
+  color: var(--text);
 }
 
 .needs-header p {
@@ -43,9 +43,9 @@
 }
 
 .filter-chip.active {
-  background: var(--primary, #16a34a);
+  background: var(--primary, #1c5c42);
   color: #fff;
-  border-color: var(--primary, #16a34a);
+  border-color: var(--primary, #1c5c42);
 }
 
 .masonry-grid {
@@ -81,9 +81,8 @@
 }
 
 .need-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  border-color: rgba(22, 163, 74, 0.3);
+  box-shadow: 0 8px 20px rgba(26, 23, 18, 0.07);
+  border-color: rgba(28, 92, 66, 0.3);
 }
 
 .need-badges {
@@ -96,7 +95,7 @@
   font-size: 0.75rem;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
-  background: var(--primary, #16a34a);
+  background: var(--primary, #1c5c42);
   color: #fff;
 }
 
@@ -116,14 +115,15 @@
 }
 
 .need-emoji {
-  font-size: 2rem;
-  background: rgba(0, 0, 0, 0.05);
-  width: 50px;
-  height: 50px;
+  background: rgba(28, 92, 66, 0.08);
+  color: var(--primary-dark);
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 12px;
+  flex-shrink: 0;
 }
 
 .need-content-header h3 {
@@ -138,6 +138,7 @@
   line-height: 1.5;
   margin-bottom: 1.5rem;
 }
+.need-desc .inline-icon { position: relative; top: 2px; margin-right: 2px; color: var(--text3); }
 
 .need-footer {
   border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -151,14 +152,15 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--text3);
 }
+.need-meta span { display: inline-flex; align-items: center; gap: 4px; }
 
 .btn-respond {
   width: 100%;
   padding: 0.75rem;
   border-radius: 8px;
-  background: var(--primary, #16a34a);
+  background: var(--primary, #1c5c42);
   color: #fff;
   border: none;
   font-weight: 600;
@@ -167,5 +169,5 @@
 }
 
 .btn-respond:hover {
-  background: var(--primary-dark, #15803d);
+  background: var(--primary-dark, #133f2d);
 }

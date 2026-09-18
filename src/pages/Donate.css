@@ -7,7 +7,7 @@
   --text-main: var(--text);
   --text-muted: var(--text2);
   --border-color: var(--border-light);
-  --glow-color: rgba(22, 163, 74, 0.4);
+  --glow-color: rgba(28, 92, 66, 0.4);
 }
 
 .donate-container {
@@ -28,9 +28,7 @@
 .donate-header h1 {
   margin-bottom: 1.5rem;
   font-size: 2.5rem;
-  background: linear-gradient(90deg, var(--text), var(--primary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text);
 }
 
 .progress-bar-container {
@@ -44,7 +42,7 @@
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+  background: var(--primary);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -131,13 +129,12 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: var(--primary);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 0 15px var(--glow-color);
-  transform: translateY(-2px);
+  background: var(--primary-dark);
 }
 
 .btn-primary:disabled {
@@ -164,7 +161,10 @@
   margin-top: 1.5rem;
 }
 
-.ngo-card {
+/* Scoped to .ngo-grid: bare .ngo-card/.ngo-emoji/.ngo-cause collided with NGOs.css's
+   own (unrelated) classes of the same name, since every page's CSS is bundled together —
+   this page's centred, clickable picker card was bleeding onto the public NGOs listing. */
+.ngo-grid .ngo-card {
   background: rgba(0, 0, 0, 0.03);
   border: 1px solid var(--border-color);
   border-radius: 12px;
@@ -174,25 +174,23 @@
   text-align: center;
 }
 
-.ngo-card:hover {
-  transform: translateY(-5px);
+.ngo-grid .ngo-card:hover {
   border-color: rgba(0, 0, 0, 0.15);
 }
 
-.ngo-card.selected {
+.ngo-grid .ngo-card.selected {
   border-color: var(--primary);
-  box-shadow: 0 0 20px var(--glow-color);
-  background: rgba(22, 163, 74, 0.1);
+  background: rgba(28, 92, 66, 0.08);
 }
 
-.ngo-emoji {
+.ngo-grid .ngo-emoji {
   font-size: 3rem;
   margin-bottom: 1rem;
 }
 
-.ngo-cause {
+.ngo-grid .ngo-cause {
   display: inline-block;
-  background: rgba(22, 163, 74, 0.1);
+  background: rgba(28, 92, 66, 0.1);
   padding: 0.2rem 0.6rem;
   border-radius: 12px;
   font-size: 0.8rem;
@@ -223,7 +221,7 @@
 .amount-chip.selected {
   background: var(--primary);
   border-color: var(--primary);
-  box-shadow: 0 0 15px var(--glow-color);
+  color: #fff;
 }
 
 .custom-amount-input {
@@ -234,7 +232,6 @@
   border: 1px solid var(--primary);
   border-radius: 8px;
   padding: 0.5rem 1rem;
-  box-shadow: 0 0 10px var(--glow-color);
 }
 
 .custom-amount-input span {
@@ -402,7 +399,7 @@
 
 .pay-method.selected {
   border-color: var(--primary);
-  background: rgba(22, 163, 74, 0.06);
+  background: rgba(28, 92, 66, 0.06);
 }
 
 .pay-method.disabled {

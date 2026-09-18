@@ -22,8 +22,8 @@
   font-size: .9rem;
   line-height: 1.5;
 }
-.fin-message.error { color: #b91c1c; background: rgba(220, 38, 38, .08); }
-.fin-message.success { color: #15803d; background: rgba(22, 163, 74, .1); }
+.fin-message.error { color: #7f2620; background: rgba(163, 49, 42, .08); }
+.fin-message.success { color: #133f2d; background: rgba(28, 92, 66, .1); }
 
 /* ── The four buckets ─────────────────────────────────────────────────────── */
 .bucket-row {
@@ -56,8 +56,8 @@
 
 /* Only the bucket that can actually be spent gets the accent — the others are context. */
 .bucket-available {
-  border-color: rgba(22, 163, 74, .4);
-  background: linear-gradient(135deg, rgba(22, 163, 74, .12), rgba(22, 163, 74, .03));
+  border-color: rgba(28, 92, 66, .4);
+  background: linear-gradient(135deg, rgba(28, 92, 66, .12), rgba(28, 92, 66, .03));
 }
 .bucket-available .bucket-value { color: var(--primary); }
 .bucket-clearing .bucket-value { color: #b45309; }
@@ -92,7 +92,7 @@
 .payout-line { display: flex; justify-content: space-between; gap: 1rem; font-size: .92rem; }
 .payout-line span { color: var(--text2); }
 .payout-line strong { font-weight: 600; text-align: right; word-break: break-all; }
-.payout-line .verified { color: #15803d; }
+.payout-line .verified { color: #133f2d; }
 .payout-line .unverified { color: #b45309; }
 .payout-current .btn-secondary { align-self: flex-start; margin-top: .6rem; }
 
@@ -161,8 +161,8 @@
 }
 .pill.pending  { color: #b45309; background: rgba(217, 119, 6, .13); }
 .pill.approved { color: #1d4ed8; background: rgba(37, 99, 235, .13); }
-.pill.paid     { color: #15803d; background: rgba(22, 163, 74, .13); }
-.pill.failed   { color: #b91c1c; background: rgba(220, 38, 38, .11); }
+.pill.paid     { color: #133f2d; background: rgba(28, 92, 66, .13); }
+.pill.failed   { color: #7f2620; background: rgba(163, 49, 42, .11); }
 
 .ledger-list { list-style: none; margin: 0; padding: 0; }
 .ledger-row {
@@ -178,7 +178,7 @@
 .ledger-detail small { color: var(--text2); font-size: .78rem; }
 .ledger-amount-block { flex: none; text-align: right; display: flex; flex-direction: column; gap: .18rem; }
 .ledger-amount { font-weight: 600; font-variant-numeric: tabular-nums; }
-.ledger-amount.credit { color: #15803d; }
+.ledger-amount.credit { color: #133f2d; }
 .ledger-amount.debit { color: #b45309; }
 .ledger-amount.neutral { color: var(--text2); }
 .ledger-balance { color: var(--text2); font-size: .74rem; font-variant-numeric: tabular-nums; }

@@ -11,7 +11,7 @@
   font-weight: 700;
   line-height: 1;
   user-select: none;
-  background: linear-gradient(135deg, #16a34a, #065f46); /* shows through if an image fails */
+  background: #1c5c42; /* shows through if an image fails */
   position: relative;
 }
 

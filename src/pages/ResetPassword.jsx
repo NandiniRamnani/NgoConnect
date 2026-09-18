@@ -47,12 +47,6 @@ export default function ResetPassword() {
 
   return (
     <div className="auth-container">
-      <div className="auth-background">
-        <div className="orb orb-1"></div>
-        <div className="orb orb-2"></div>
-        <div className="orb orb-3"></div>
-      </div>
-
       <div className="auth-card">
         <div className="auth-left login-left">
           <div className="auth-header">

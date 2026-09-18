@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PartyPopper, Stethoscope, GraduationCap, Leaf, UtensilsCrossed, Sparkles, CalendarDays, MapPin, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import './Events.css';
 
 const CATEGORIES = ['All', 'General', 'Health', 'Education', 'Environment', 'Food', 'Other'];
-const CATEGORY_EMOJI = { General: '🎉', Health: '🩺', Education: '👨‍🏫', Environment: '🌱', Food: '🥪', Other: '✨' };
+const CATEGORY_ICON = { General: PartyPopper, Health: Stethoscope, Education: GraduationCap, Environment: Leaf, Food: UtensilsCrossed, Other: Sparkles };
 
 export default function Events() {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -90,17 +91,18 @@ export default function Events() {
           const progress = event.maxSpots > 0 ? ((event.enrolledCount || 0) / event.maxSpots) * 100 : 0;
           const isFull = event.maxSpots > 0 && (event.enrolledCount || 0) >= event.maxSpots;
 
+          const CategoryIcon = CATEGORY_ICON[event.category] || Sparkles;
           return (
             <div key={event.id} className="event-card">
-              <div className="event-emoji">{CATEGORY_EMOJI[event.category] || '🎉'}</div>
+              <div className="event-emoji"><CategoryIcon size={24} strokeWidth={1.8} /></div>
               <div className="event-content">
                 <div className="event-meta">
                   <span className="event-ngo">{event.ngoName}</span>
-                  <span className="event-date">📅 {event.eventDate ? new Date(event.eventDate).toLocaleDateString() : 'TBA'}</span>
+                  <span className="event-date"><CalendarDays size={13} /> {event.eventDate ? new Date(event.eventDate).toLocaleDateString() : 'TBA'}</span>
                 </div>
                 <h3>{event.title}</h3>
                 <p className="event-desc">{event.description}</p>
-                <div className="event-location">📍 {event.location}</div>
+                <div className="event-location"><MapPin size={13} /> {event.location}</div>
 
                 <div className="event-progress-container">
                   <div className="progress-labels">
@@ -143,7 +145,7 @@ export default function Events() {
             )}
             {modalState === 'success' && (
               <div className="success-state">
-                <div className="success-icon">✅</div>
+                <div className="success-icon"><CheckCircle2 size={40} strokeWidth={1.8} /></div>
                 <h2>Successfully Enrolled!</h2>
                 <p>Thank you for volunteering. The NGO will be in touch with details.</p>
               </div>
