@@ -1,0 +1,11 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "VISITOR" as v
+rectangle "System" {
+  usecase "View Offers" as u1
+  usecase "View Feedback" as u2
+}
+v -- u1
+v -- u2
+@enduml

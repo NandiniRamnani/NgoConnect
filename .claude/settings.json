@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git check-ignore *)",
+      "Bash(python3 check-mail.py)",
+      "Bash(curl -sL -o /d/backend/docs/tools/plantuml.jar https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-1.2025.4.jar)",
+      "Bash(java -jar /d/backend/docs/tools/plantuml.jar -version)",
+      "Bash(git remote *)",
+      "Bash(git ls-remote *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(git push *)"
+    ]
+  }
+}

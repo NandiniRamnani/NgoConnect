@@ -1,0 +1,60 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Secrets ###
+# Real credentials live here. .env.example is the committable template.
+.env
+.env.local
+!.env.example
+
+### Node / frontend ###
+node_modules/
+
+### Local run artefacts ###
+startup.log
+*.log
+
+### Downloaded tooling (re-downloadable, 22MB - not source) ###
+docs/tools/plantuml.jar
+docs/uml/*.puml.png
+
+### OS noise ###
+Thumbs.db
+.DS_Store
+
+### Local Maven cache that happens to live inside the project folder ###
+.m2/
+
+### Machine-specific Claude settings (the shared templates in .claude are kept) ###
+.claude/settings.local.json

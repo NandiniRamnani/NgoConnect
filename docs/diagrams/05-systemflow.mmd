@@ -1,0 +1,93 @@
+flowchart TB
+    classDef client fill:#dbeafe,stroke:#1e40af,stroke-width:1.5px,color:#1e3a8a
+    classDef sec fill:#fee2e2,stroke:#b91c1c,stroke-width:1.5px,color:#7f1d1d
+    classDef ctrl fill:#e0e7ff,stroke:#4338ca,stroke-width:1.5px,color:#312e81
+    classDef svc fill:#dcfce7,stroke:#15803d,stroke-width:1.5px,color:#14532d
+    classDef repo fill:#fef3c7,stroke:#b45309,stroke-width:1.5px,color:#78350f
+    classDef data fill:#f3e8ff,stroke:#7e22ce,stroke-width:1.5px,color:#581c87
+    classDef ext fill:#ffe4e6,stroke:#be123c,stroke-width:1.5px,color:#881337
+
+    subgraph L1["PRESENTATION LAYER — React 19 + Vite"]
+        direction LR
+        P1[Home / NGOs /<br/>NGO Detail]:::client
+        P2[Donate /<br/>Wallet]:::client
+        P3[Dashboard /<br/>NGO Finance]:::client
+        P4[Admin<br/>Dashboard]:::client
+    end
+
+    subgraph L2["SECURITY LAYER — Spring Security"]
+        S1[HTTP Basic Authentication]:::sec
+        S2[Role Authorisation<br/>USER / NGO / ADMIN]:::sec
+        S3[CORS Policy]:::sec
+    end
+
+    subgraph L3["CONTROLLER LAYER — REST Endpoints"]
+        direction LR
+        C1[Account]:::ctrl
+        C2[Ngo]:::ctrl
+        C3[Donation]:::ctrl
+        C4[Wallet]:::ctrl
+        C5[NgoFinance]:::ctrl
+        C6[Event / Chat]:::ctrl
+        C7[Admin]:::ctrl
+        C8[PaymentWebhook]:::ctrl
+    end
+
+    subgraph L4["SERVICE LAYER — Business Logic"]
+        direction LR
+        V1[AccountService]:::svc
+        V2[NgoService +<br/>DocumentVerification]:::svc
+        V3[DonationService]:::svc
+        V4[WalletService]:::svc
+        V5[NgoBalanceService]:::svc
+        V6[WithdrawalService]:::svc
+        V7[ReceiptService]:::svc
+        V8[PaymentWebhookService]:::svc
+        V9[Mail / Cloudinary /<br/>ProfileImage]:::svc
+    end
+
+    subgraph L5["PERSISTENCE LAYER — Spring Data MongoDB"]
+        direction LR
+        R1[MongoRepository<br/>Interfaces]:::repo
+        R2[MongoTemplate<br/>Atomic findAndModify]:::repo
+    end
+
+    subgraph L6["DATA LAYER — MongoDB Atlas"]
+        direction LR
+        DB1[(accounts<br/>ngos)]:::data
+        DB2[(donations<br/>wallets<br/>wallet_transactions)]:::data
+        DB3[(ngo_balances<br/>ngo_ledger_entries<br/>withdrawal_requests)]:::data
+        DB4[(events / chats<br/>notifications / counters)]:::data
+    end
+
+    subgraph L7["EXTERNAL SERVICES"]
+        direction LR
+        E1[Razorpay<br/>Payment Gateway]:::ext
+        E2[Cloudinary<br/>Media CDN]:::ext
+        E3[Gmail SMTP]:::ext
+        E4[Tesseract OCR<br/>+ PDFBox]:::ext
+    end
+
+    SCHED[["⏱ Scheduled Job<br/>releaseClearedFunds()<br/>clearing → available"]]:::svc
+
+    L1 -->|HTTPS / JSON| L2
+    L2 --> L3
+    L3 --> L4
+    L4 --> L5
+    L5 --> L6
+
+    V3 <-->|Create order<br/>Verify signature| E1
+    V4 <-->|Create order<br/>Verify signature| E1
+    E1 -.->|payment.captured<br/>webhook| C8
+    C8 --> V8
+    V8 --> V3
+    V8 --> V4
+
+    V2 <-->|Upload documents| E2
+    V9 <-->|Upload media| E2
+    V2 -->|Extract text| E4
+    V7 -->|Render 80G PDF| E4
+    V9 -->|Receipts &amp; alerts| E3
+
+    SCHED --> V5
+    V5 --> R2

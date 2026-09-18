@@ -1,0 +1,65 @@
+flowchart TB
+    classDef actor fill:#dcfce7,stroke:#15803d,stroke-width:2.5px,color:#14532d
+    classDef admin fill:#dbeafe,stroke:#1e40af,stroke-width:2.5px,color:#1e3a8a
+    classDef ext fill:#fef3c7,stroke:#b45309,stroke-width:2.5px,color:#78350f
+    classDef uc fill:#ffffff,stroke:#475569,stroke-width:1.3px,color:#0f172a
+
+    NGO(["🏢 NGO"]):::actor
+    Admin(["🛡️ ADMINISTRATOR"]):::admin
+
+    subgraph NGOM["NGO Onboarding &amp; Content"]
+        U5(["Register NGO<br/>with Documents"]):::uc
+        U6(["Auto-Verify<br/>Documents (OCR)"]):::uc
+        U7(["Approve /<br/>Reject NGO"]):::uc
+        U8(["Upload Photos<br/>&amp; Videos"]):::uc
+        U9(["Post Needs &amp;<br/>Volunteer Calls"]):::uc
+    end
+
+    subgraph FIN["NGO Finance &amp; Payouts"]
+        U16(["View Balance<br/>&amp; Ledger"]):::uc
+        U17(["Set Payout<br/>Method"]):::uc
+        U18(["Request<br/>Withdrawal"]):::uc
+        U19(["Approve / Reject<br/>Withdrawal"]):::uc
+    end
+
+    subgraph EVT["Event Management"]
+        U20(["Create<br/>Event"]):::uc
+        U22(["Mark<br/>Attendance"]):::uc
+        U25(["View<br/>Enrolments"]):::uc
+    end
+
+    subgraph ADM["Platform Administration"]
+        U26(["Manage User<br/>Accounts"]):::uc
+        U27(["View All<br/>Applications"]):::uc
+    end
+
+    CLD(["☁️ CLOUDINARY"]):::ext
+    OCR(["🔍 TESSERACT OCR<br/>+ PDFBOX"]):::ext
+
+    NGO --- U5
+    NGO --- U8
+    NGO --- U9
+    NGO --- U16
+    NGO --- U17
+    NGO --- U18
+    NGO --- U20
+    NGO --- U22
+    NGO --- U25
+
+    Admin --- U7
+    Admin --- U19
+    Admin --- U26
+    Admin --- U27
+
+    U5 -.->|&lt;&lt;include&gt;&gt;| U6
+    U18 -.->|&lt;&lt;include&gt;&gt;| U19
+
+    %% Invisible links: force vertical stacking within each group (see note in Fig 5.1).
+    U5 ~~~ U6 ~~~ U7 ~~~ U8 ~~~ U9
+    U16 ~~~ U17 ~~~ U18 ~~~ U19
+    U20 ~~~ U22 ~~~ U25
+    U26 ~~~ U27
+
+    U6 --- OCR
+    U5 --- CLD
+    U8 --- CLD

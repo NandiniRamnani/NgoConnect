@@ -1,0 +1,57 @@
+@startuml 02-usecase-ngo-admin
+' Use Case Diagram - NGO and Administrator
+!include common.puml
+!pragma layout smetana
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "NGO" as NGO
+actor "ADMINISTRATOR" as ADMIN
+
+rectangle "NGOConnect System" {
+
+    usecase "Register NGO with\nDocuments" as UC1
+    usecase "Verify Documents\n(OCR)" as UC2
+    usecase "Approve / Reject\nNGO Application" as UC3
+    usecase "Upload Photos\n& Videos" as UC4
+    usecase "Post Needs &\nVolunteer Calls" as UC5
+    usecase "Manage NGO\nProfile" as UC6
+
+    usecase "View Balance\n& Ledger" as UC7
+    usecase "Set Payout\nMethod" as UC8
+    usecase "Request\nWithdrawal" as UC9
+    usecase "Approve / Reject\nWithdrawal" as UC10
+    usecase "Mark Withdrawal\nas Paid" as UC11
+
+    usecase "Create Event" as UC12
+    usecase "View Event\nEnrolments" as UC13
+    usecase "Mark\nAttendance" as UC14
+
+    usecase "Manage User\nAccounts" as UC15
+    usecase "Oversee\nDonations" as UC16
+}
+
+NGO -- UC1
+NGO -- UC4
+NGO -- UC5
+NGO -- UC6
+NGO -- UC7
+NGO -- UC8
+NGO -- UC9
+NGO -- UC12
+NGO -- UC13
+NGO -- UC14
+
+ADMIN -- UC3
+ADMIN -- UC10
+ADMIN -- UC11
+ADMIN -- UC15
+ADMIN -- UC16
+
+UC1 ..> UC2 : <<include>>
+UC3 ..> UC2 : <<include>>
+UC9 ..> UC10 : <<extend>>
+UC10 ..> UC11 : <<extend>>
+
+@enduml
