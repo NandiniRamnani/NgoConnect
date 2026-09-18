@@ -1,0 +1,35 @@
+/* Shared by every profile picture in the app — see Avatar.jsx. */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;          /* clips a rectangular photo into the circle */
+  flex-shrink: 0;            /* stops flex rows squashing it into an oval */
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+  background: linear-gradient(135deg, #16a34a, #065f46); /* shows through if an image fails */
+  position: relative;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* fill the circle without distorting the photo */
+  display: block;
+}
+
+.avatar-initials {
+  letter-spacing: 0.02em;
+  /* A faint shadow keeps light initials readable against the lighter end of a gradient. */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* The navbar variant: a soft halo instead of the hard 2px border it used to have. */
+.avatar-ring {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9),
+              0 2px 8px rgba(15, 23, 42, 0.18);
+}

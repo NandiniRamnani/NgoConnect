@@ -1,0 +1,254 @@
+.events-page {
+  padding: 2rem;
+  color: var(--text, #f0f0ff);
+  min-height: 100vh;
+  background: var(--bg, #0a0a0f);
+}
+
+.events-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.events-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary, #6c47ff);
+}
+
+.events-header p {
+  color: var(--text2, #b0b0cc);
+  margin-bottom: 2rem;
+}
+
+.events-filters {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.06));
+  background: var(--surface-color, rgba(0, 0, 0, 0.05));
+  color: var(--text, #f0f0ff);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.filter-tab:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.filter-tab.active {
+  background: var(--primary, #6c47ff);
+  color: #fff;
+  border-color: var(--primary, #6c47ff);
+}
+
+.events-list {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.event-card {
+  display: flex;
+  background: var(--surface-color, rgba(0, 0, 0, 0.05));
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.06));
+  border-radius: 16px;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+  transform: translateX(5px);
+  box-shadow: -5px 10px 20px rgba(0, 0, 0, 0.2);
+  border-color: rgba(22, 163, 74, 0.3);
+}
+
+@media (max-width: 600px) {
+  .event-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.event-emoji {
+  font-size: 3rem;
+  background: rgba(0, 0, 0, 0.05);
+  min-width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+}
+
+.event-content {
+  flex-grow: 1;
+}
+
+.event-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.event-ngo {
+  color: var(--primary, #6c47ff);
+  font-weight: 600;
+}
+
+.event-date {
+  color: var(--text2, #b0b0cc);
+}
+
+.event-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+}
+
+.event-desc {
+  color: var(--text2, #b0b0cc);
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.event-location {
+  font-size: 0.85rem;
+  color: var(--text, #f0f0ff);
+  margin-bottom: 1rem;
+}
+
+.event-progress-container {
+  width: 100%;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+  color: var(--text2, #b0b0cc);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.event-action {
+  min-width: 120px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-enroll {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary, #6c47ff);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  width: 100%;
+}
+
+.btn-enroll:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn-enroll:disabled {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text3, #7070a0);
+  cursor: not-allowed;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--surface2, #1e1e35);
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: var(--text, #111827);
+}
+
+.modal-content p {
+  color: var(--text2, #b0b0cc);
+  margin-bottom: 2rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text, #111827);
+}
+
+.btn-confirm {
+  background: var(--primary, #6c47ff);
+  color: #fff;
+}
+
+.success-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}

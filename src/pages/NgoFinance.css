@@ -1,0 +1,190 @@
+/* Reuses the site-wide palette from index.css, same approach as Donate.css and Wallet.css. */
+.fin-container {
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text);
+  padding: 2rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+.fin-loading { max-width: 1080px; margin: 4rem auto; text-align: center; color: var(--text2); }
+
+.fin-header { max-width: 1080px; margin: 0 auto 1.75rem; }
+.fin-header h1 { margin: 0 0 .4rem; font-size: 2.25rem; letter-spacing: -.02em; }
+.fin-header p { margin: 0; color: var(--text2); }
+
+.fin-message {
+  max-width: 1080px;
+  margin: 0 auto 1.25rem;
+  padding: .7rem .9rem;
+  border-radius: 8px;
+  font-size: .9rem;
+  line-height: 1.5;
+}
+.fin-message.error { color: #b91c1c; background: rgba(220, 38, 38, .08); }
+.fin-message.success { color: #15803d; background: rgba(22, 163, 74, .1); }
+
+/* ── The four buckets ─────────────────────────────────────────────────────── */
+.bucket-row {
+  max-width: 1080px;
+  margin: 0 auto 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
+.bucket {
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  background: rgba(0, 0, 0, .02);
+}
+
+.bucket-label {
+  font-size: .75rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.bucket-value { font-size: 1.85rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.bucket small { color: var(--text2); font-size: .78rem; line-height: 1.45; }
+
+/* Only the bucket that can actually be spent gets the accent — the others are context. */
+.bucket-available {
+  border-color: rgba(22, 163, 74, .4);
+  background: linear-gradient(135deg, rgba(22, 163, 74, .12), rgba(22, 163, 74, .03));
+}
+.bucket-available .bucket-value { color: var(--primary); }
+.bucket-clearing .bucket-value { color: #b45309; }
+.bucket-reserved .bucket-value { color: var(--text2); }
+.bucket-lifetime .bucket-value { font-size: 1.5rem; color: var(--text2); }
+
+/* ── Cards ────────────────────────────────────────────────────────────────── */
+.fin-grid {
+  max-width: 1080px;
+  margin: 0 auto 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.fin-card {
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, .02);
+}
+.fin-wide { max-width: 1080px; margin: 0 auto 1.5rem; }
+.fin-card h2 { margin: 0 0 1rem; font-size: 1.15rem; }
+.fin-empty { color: var(--text2); margin: 0; font-size: .92rem; line-height: 1.55; }
+
+.fin-note { font-size: .78rem; color: var(--text2); line-height: 1.5; margin: .8rem 0 0; }
+.fin-note.warn { color: #b45309; }
+
+/* ── Payout details ───────────────────────────────────────────────────────── */
+.payout-current { display: flex; flex-direction: column; gap: .55rem; }
+.payout-line { display: flex; justify-content: space-between; gap: 1rem; font-size: .92rem; }
+.payout-line span { color: var(--text2); }
+.payout-line strong { font-weight: 600; text-align: right; word-break: break-all; }
+.payout-line .verified { color: #15803d; }
+.payout-line .unverified { color: #b45309; }
+.payout-current .btn-secondary { align-self: flex-start; margin-top: .6rem; }
+
+.payout-form, .withdraw-form { display: flex; flex-direction: column; gap: .85rem; }
+
+.payout-form label, .withdraw-form label {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  font-size: .82rem;
+  color: var(--text2);
+}
+.optional { color: var(--text2); opacity: .7; }
+
+.payout-form input, .withdraw-form input {
+  border: 1px solid var(--border-light);
+  border-radius: 9px;
+  padding: .6rem .75rem;
+  background: transparent;
+  color: var(--text);
+  font-size: .95rem;
+  font-family: inherit;
+}
+.payout-form input:focus, .withdraw-form input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+.type-toggle { display: flex; gap: .5rem; }
+.type-toggle button {
+  flex: 1;
+  padding: .55rem .8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--text);
+  font-size: .88rem;
+  cursor: pointer;
+}
+.type-toggle button.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
+
+.form-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+
+/* ── Tables and lists ─────────────────────────────────────────────────────── */
+.table-scroll { overflow-x: auto; }
+.fin-table { width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 560px; }
+.fin-table th {
+  text-align: left;
+  font-size: .7rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text2);
+  padding: 0 .9rem .6rem 0;
+  border-bottom: 1px solid var(--border-light);
+  font-weight: 600;
+}
+.fin-table td { padding: .7rem .9rem .7rem 0; border-bottom: 1px solid var(--border-light); }
+.fin-table tr:last-child td { border-bottom: none; }
+.fin-table .num { font-variant-numeric: tabular-nums; font-weight: 600; }
+.fin-table .muted { color: var(--text2); font-size: .82rem; }
+
+.pill {
+  display: inline-block;
+  padding: .18rem .55rem;
+  border-radius: 999px;
+  font-size: .74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pill.pending  { color: #b45309; background: rgba(217, 119, 6, .13); }
+.pill.approved { color: #1d4ed8; background: rgba(37, 99, 235, .13); }
+.pill.paid     { color: #15803d; background: rgba(22, 163, 74, .13); }
+.pill.failed   { color: #b91c1c; background: rgba(220, 38, 38, .11); }
+
+.ledger-list { list-style: none; margin: 0; padding: 0; }
+.ledger-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .8rem 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.ledger-row:last-child { border-bottom: none; }
+.ledger-detail { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .18rem; }
+.ledger-detail strong { font-weight: 600; font-size: .92rem; }
+.ledger-detail small { color: var(--text2); font-size: .78rem; }
+.ledger-amount-block { flex: none; text-align: right; display: flex; flex-direction: column; gap: .18rem; }
+.ledger-amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+.ledger-amount.credit { color: #15803d; }
+.ledger-amount.debit { color: #b45309; }
+.ledger-amount.neutral { color: var(--text2); }
+.ledger-balance { color: var(--text2); font-size: .74rem; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 820px) {
+  .fin-container { padding: 1.25rem; }
+  .fin-header h1 { font-size: 1.75rem; }
+  .bucket-value { font-size: 1.55rem; }
+}

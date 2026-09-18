@@ -1,0 +1,436 @@
+/* Aliases onto the site-wide palette from index.css, instead of a separate
+   hardcoded palette that used to silently override --primary for every page. */
+:root {
+  --primary-hover: var(--primary-dark);
+  --bg-dark: var(--bg);
+  --bg-card: rgba(0, 0, 0, 0.03);
+  --text-main: var(--text);
+  --text-muted: var(--text2);
+  --border-color: var(--border-light);
+  --glow-color: rgba(22, 163, 74, 0.4);
+}
+
+.donate-container {
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  padding: 2rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+.donate-header {
+  max-width: 1000px;
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+
+.donate-header h1 {
+  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
+  background: linear-gradient(90deg, var(--text), var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background-color: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-indicator {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.donate-content {
+  display: flex;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+.donate-main {
+  flex: 1;
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  min-height: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.donate-sidebar {
+  width: 300px;
+  position: sticky;
+  top: 2rem;
+}
+
+.summary-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.summary-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+.summary-item span {
+  color: var(--text-muted);
+}
+
+.summary-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Common UI */
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 0 15px var(--glow-color);
+  transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Step 1: NGO Grid */
+.ngo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.ngo-card {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.ngo-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.ngo-card.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 20px var(--glow-color);
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.ngo-emoji {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.ngo-cause {
+  display: inline-block;
+  background: rgba(22, 163, 74, 0.1);
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: var(--primary);
+  margin: 0.5rem 0;
+}
+
+/* Step 2: Amount */
+.amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.amount-chip {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 1rem;
+  font-size: 1.2rem;
+}
+
+.amount-chip:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.amount-chip.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 15px var(--glow-color);
+}
+
+.custom-amount-input {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+.custom-amount-input span {
+  font-size: 1.2rem;
+  color: var(--text-main);
+  margin-right: 0.5rem;
+}
+
+.custom-amount-input input {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 1.2rem;
+  width: 100%;
+  outline: none;
+}
+
+/* Step 3: Payment */
+.payment-form {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--text-main);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Step 4: Success */
+.step-4 {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.success-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  animation: bounce 2s infinite;
+}
+
+.confetti-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0;
+  font-size: 2rem;
+}
+
+.confetti {
+  animation: float 3s ease-in-out infinite;
+}
+
+.confetti:nth-child(2) { animation-delay: 0.5s; }
+.confetti:nth-child(3) { animation-delay: 1s; }
+.confetti:nth-child(4) { animation-delay: 1.5s; }
+
+.mt-4 {
+  margin-top: 2rem;
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-30px); }
+  60% { transform: translateY(-15px); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(10deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .donate-content {
+    flex-direction: column;
+  }
+  
+  .donate-sidebar {
+    width: 100%;
+    position: static;
+  }
+}
+
+
+/* ── Payment method selector (step 3) ──────────────────────────────────────
+   Wallet vs Razorpay. The wallet card is rendered disabled rather than hidden
+   when the balance is short, so the donor can see why it is not available. */
+.pay-method-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.pay-method {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pay-method:hover { border-color: var(--primary); }
+
+.pay-method.selected {
+  border-color: var(--primary);
+  background: rgba(22, 163, 74, 0.06);
+}
+
+.pay-method.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pay-method.disabled:hover { border-color: var(--border-color); }
+
+.pay-method input { margin-top: 0.25rem; flex: none; accent-color: var(--primary); }
+
+.pay-method-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pay-method-body strong { font-weight: 600; }
+.pay-method-body small { color: var(--text-muted); font-size: 0.82rem; line-height: 1.45; }
+
+.pay-method-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0 0;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}

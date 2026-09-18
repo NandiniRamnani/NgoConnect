@@ -1,0 +1,217 @@
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 16px 0;
+  transition: var(--transition);
+}
+
+.navbar.scrolled {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-light);
+  padding: 12px 0;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.08);
+}
+
+.navbar-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 0 20px rgba(22,163,74,0.35);
+}
+
+.logo-accent { color: var(--primary-light); }
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-link {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text2);
+  transition: var(--transition);
+  position: relative;
+}
+
+.nav-link:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+
+.nav-link.active {
+  color: var(--primary-light);
+  background: rgba(22,163,74,0.1);
+}
+
+.nav-link-accent {
+  background: linear-gradient(135deg, rgba(13,148,136,0.1), rgba(13,148,136,0.05)) !important;
+  color: var(--accent) !important;
+  border: 1px solid rgba(13,148,136,0.2);
+  font-weight: 600 !important;
+}
+.nav-link-accent:hover {
+  background: rgba(13,148,136,0.15) !important;
+  border-color: var(--accent);
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.auth-btns { display: flex; align-items: center; gap: 10px; }
+
+/* User Menu */
+.user-menu { position: relative; }
+
+/* Account button: the avatar plus a chevron, in one pill-shaped hit target.
+   The old version was a bare 38px circle with a hard border — it read as an unfinished
+   placeholder, and gave no hint that clicking it opened a menu. */
+.user-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--text2, #64748b);
+  transition: background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  /* Keeps the button from being clipped by the viewport edge when the page loses its
+     scrollbar — which is exactly what happens while the Razorpay modal is open. */
+  flex-shrink: 0;
+}
+
+.user-avatar-btn:hover {
+  background: #fff;
+  border-color: var(--primary-light, #86efac);
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.16);
+}
+
+.user-avatar-btn.open {
+  background: #fff;
+  border-color: var(--primary, #16a34a);
+}
+
+/* Rotate the chevron to point up while the menu is open, so the control says what it did. */
+.avatar-chevron { transition: transform 0.2s ease; }
+.user-avatar-btn.open .avatar-chevron { transform: rotate(180deg); }
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 240px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  animation: fadeIn 0.2s ease;
+}
+
+.dropdown-header {
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dropdown-header strong { font-size: 15px; color: var(--text); }
+.dropdown-header small { font-size: 12px; color: var(--text3); }
+.dropdown-role { margin-top: 6px; width: fit-content; }
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 4px 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--text2);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.dropdown-item:hover { background: rgba(0,0,0,0.04); color: var(--text); }
+.dropdown-item.danger:hover { background: rgba(220,38,38,0.1); color: var(--error); }
+
+/* Mobile */
+.mobile-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+.mobile-toggle span {
+  display: block;
+  width: 22px; height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
+@media (max-width: 768px) {
+  .mobile-toggle { display: flex; }
+  .auth-btns .btn-secondary { display: none; }
+
+  .navbar-links {
+    display: none;
+    position: fixed;
+    top: 64px; left: 0; right: 0;
+    background: rgba(255,255,255,0.98);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+  .navbar-links.open { display: flex; }
+  .nav-link { width: 100%; padding: 14px 16px; }
+}
