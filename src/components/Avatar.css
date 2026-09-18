@@ -33,3 +33,11 @@
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9),
               0 2px 8px rgba(15, 23, 42, 0.18);
 }
+
+/* Generic silhouette for individual users: a neutral grey circle instead of the
+   colourful initials badge, so it reads as "no picture set" rather than as a
+   picture that happens to look the same as an NGO's. */
+.avatar-person {
+  background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+  color: #fff;
+}

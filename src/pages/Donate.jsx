@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import './Donate.css';
@@ -10,10 +10,12 @@ const AMOUNTS = [100, 500, 1000, 5000];
 const Donate = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [step, setStep] = useState(1);
   const [selectedNGO, setSelectedNGO] = useState(null);
   const [ngos, setNgos] = useState([]);
+  const [ngosLoaded, setNgosLoaded] = useState(false);
   const [amount, setAmount] = useState('');
   const [customAmount, setCustomAmount] = useState('');
 
@@ -34,8 +36,26 @@ const Donate = () => {
   }), [user]);
 
   useEffect(() => {
-    api.get('/ngos').then(response => setNgos(response.data)).catch(() => setNgos([]));
+    api.get('/ngos')
+      .then(response => setNgos(response.data))
+      .catch(() => setNgos([]))
+      .finally(() => setNgosLoaded(true));
   }, []);
+
+  /**
+   * Arriving here from a specific NGO's need/event (Needs page "Donate" button, etc.)
+   * passes the NGO via route state. Without this, every donor landed on step 1's full
+   * NGO picker regardless of which NGO they meant to pay — jump straight to the amount
+   * step instead, pre-selecting the NGO they actually came here for.
+   */
+  useEffect(() => {
+    if (!ngosLoaded || selectedNGO) return;
+    const presetNgoId = location.state?.ngoId;
+    if (presetNgoId == null) return;
+    const match = ngos.find(n => n.id === presetNgoId);
+    setSelectedNGO(match || { id: presetNgoId, ngoName: location.state?.ngoName || 'NGO' });
+    setStep(2);
+  }, [ngosLoaded, ngos, location.state, selectedNGO]);
 
   // Load the balance so step 3 can show it and disable the wallet option when it is short.
   // GET /api/wallet creates an empty wallet on first call, so a new donor sees 0.00, not an error.

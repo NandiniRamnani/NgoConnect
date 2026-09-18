@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
+import PasswordInput from '../components/PasswordInput';
 import './Login.css';
 
 const Login = () => {
@@ -83,13 +84,12 @@ const Login = () => {
 
             <div className="form-group">
               <label>Password</label>
-              <input 
-                type="password" 
-                name="password" 
-                value={formData.password} 
-                onChange={handleChange} 
-                required 
-                placeholder="••••••••"
+              <PasswordInput
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                placeholder="Enter your password"
               />
             </div>
 

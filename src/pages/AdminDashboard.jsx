@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
+import PasswordInput from '../components/PasswordInput';
 import './AdminDashboard.css';
 
 const SECTIONS = ['ngos', 'accounts', 'events', 'donations', 'withdrawals', 'needs'];
@@ -216,7 +217,7 @@ export default function AdminDashboard() {
         {err && <div className="admin-error">{err}</div>}
         <form onSubmit={login}>
           <label>Email<input value={creds.email} onChange={e => setCreds(c => ({ ...c, email: e.target.value }))} required /></label>
-          <label>Password<input type="password" value={creds.password} onChange={e => setCreds(c => ({ ...c, password: e.target.value }))} required /></label>
+          <label>Password<PasswordInput value={creds.password} onChange={e => setCreds(c => ({ ...c, password: e.target.value }))} required /></label>
           <button disabled={loading}>{loading ? 'Signing in...' : 'Sign In'}</button>
         </form>
       </div>

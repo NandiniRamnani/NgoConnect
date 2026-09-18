@@ -64,15 +64,19 @@ export default function Navbar() {
         <div className="navbar-actions">
           {user ? (
             <div className="user-menu">
-              {/* The button is now just a hit target with a chevron; the circle itself is the
-                  shared Avatar, so a user who uploaded a photo actually sees it here. */}
               <button
                 className={`user-avatar-btn ${dropdownOpen ? 'open' : ''}`}
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 aria-label="Account menu"
                 aria-expanded={dropdownOpen}
               >
-                <Avatar src={user.avatarUrl} name={user.fullName || user.ngoName || user.email} size={36} ring />
+                <Avatar
+                  src={user.avatarUrl}
+                  name={user.fullName || user.ngoName || user.email}
+                  size={36}
+                  ring
+                  variant={user.role === 'NGO' ? 'account' : 'person'}
+                />
                 <svg className="avatar-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="6 9 12 15 18 9" />
                 </svg>

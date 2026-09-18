@@ -53,7 +53,7 @@ export default function NGOs() {
             </div>
             <p className="ngo-desc">{ngo.description}</p>
             <div className="ngo-location">{ngo.location}</div>
-            <div className="ngo-actions"><button className="btn-secondary" onClick={() => navigate('/ngos/' + ngo.id)}>View Details</button><button className="btn-primary">Donate</button></div>
+            <div className="ngo-actions"><button className="btn-secondary" onClick={() => navigate('/ngos/' + ngo.id)}>View Details</button><button className="btn-primary" onClick={() => navigate('/donate', { state: { ngoId: ngo.id, ngoName: ngo.ngoName } })}>Donate</button></div>
           </article>
         ))}
       </div>}

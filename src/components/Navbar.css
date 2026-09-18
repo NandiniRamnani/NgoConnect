@@ -96,38 +96,52 @@
 /* User Menu */
 .user-menu { position: relative; }
 
-/* Account button: the avatar plus a chevron, in one pill-shaped hit target.
-   The old version was a bare 38px circle with a hard border — it read as an unfinished
-   placeholder, and gave no hint that clicking it opened a menu. */
+/* Account button: a plain circular avatar with a small caret badge overlapping its
+   bottom-right edge — the same pattern as Google/GitHub account menus. The previous
+   version wrapped the avatar in a pill-shaped (oval) hit target, which read as an
+   unfinished, mismatched shape next to a circular picture. */
 .user-avatar-btn {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px 4px 4px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid var(--border-light);
-  border-radius: 999px;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 50%;
   cursor: pointer;
   color: var(--text2, #64748b);
-  transition: background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   /* Keeps the button from being clipped by the viewport edge when the page loses its
      scrollbar — which is exactly what happens while the Razorpay modal is open. */
   flex-shrink: 0;
 }
 
-.user-avatar-btn:hover {
-  background: #fff;
-  border-color: var(--primary-light, #86efac);
-  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.16);
+.user-avatar-btn .avatar {
+  transition: box-shadow 0.18s ease;
 }
 
-.user-avatar-btn.open {
+.user-avatar-btn:hover .avatar,
+.user-avatar-btn.open .avatar {
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.35), 0 2px 8px rgba(15, 23, 42, 0.18);
+}
+
+/* The dropdown caret: a small circular badge sitting on the avatar's edge, rather
+   than a separate icon floating beside it. */
+.avatar-chevron {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 16px;
+  height: 16px;
+  padding: 2px;
+  box-sizing: border-box;
   background: #fff;
-  border-color: var(--primary, #16a34a);
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+  transition: transform 0.2s ease;
 }
 
 /* Rotate the chevron to point up while the menu is open, so the control says what it did. */
-.avatar-chevron { transition: transform 0.2s ease; }
 .user-avatar-btn.open .avatar-chevron { transform: rotate(180deg); }
 
 .user-dropdown {

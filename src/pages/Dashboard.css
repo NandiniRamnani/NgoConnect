@@ -13,18 +13,6 @@
   --danger: var(--error);
 }
 
-/* Avatar circle with letter */
-.avatar-circle {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px; font-weight: 700; color: #fff;
-  margin: 0 auto 12px;
-  border: 2px solid rgba(22, 163, 74, 0.4);
-  box-shadow: 0 0 20px rgba(22, 163, 74, 0.3);
-}
-
 /* Header subtitle */
 .header-sub { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
 
@@ -67,19 +55,6 @@
   margin-bottom: 3rem;
   padding-bottom: 2rem;
   border-bottom: 1px solid var(--border-color);
-}
-
-.avatar {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  border-radius: 50%;
-  margin: 0 auto 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  box-shadow: 0 0 20px rgba(22, 163, 74, 0.3);
 }
 
 .user-profile h2 {
@@ -489,7 +464,7 @@
 
 /* The camera button sits on the avatar's lower-right, so `relative` here gives it
    something to be positioned against. inline-block keeps the box hugging the circle. */
-.avatar-editable { position: relative; display: inline-block; }
+.avatar-editable { position: relative; display: inline-block; margin-bottom: 1rem; }
 
 .avatar-edit-btn {
   position: absolute;

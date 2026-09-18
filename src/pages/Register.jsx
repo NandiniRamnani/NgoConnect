@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import PasswordInput from '../components/PasswordInput';
 import './Register.css';
 
 const initialForm = { fullName: '', email: '', password: '', confirmPassword: '', ngoType: 'Education', legalStructure: 'Trust', registrationNumber: '', panNumber: '', ngoDarpanId: '', authorizedPersonName: '', authorizedPersonDesignation: '', description: '', location: '', address: '', contactPhone: '', websiteUrl: '', facebookUrl: '', instagramUrl: '', linkedinUrl: '' };
@@ -101,7 +102,18 @@ export default function Register() {
     finally { setLoading(false); }
   };
 
-  const field = (label, name, opts = {}) => { const { optional, ...inputOpts } = opts; return <label className="registration-field"><span>{label}{optional && <em>Optional</em>}</span><input name={name} value={formData[name]} onChange={change} required={!optional} {...inputOpts} /></label>; };
+  const field = (label, name, opts = {}) => {
+    const { optional, ...inputOpts } = opts;
+    const isPassword = inputOpts.type === 'password';
+    return (
+      <label className="registration-field">
+        <span>{label}{optional && <em>Optional</em>}</span>
+        {isPassword
+          ? <PasswordInput name={name} value={formData[name]} onChange={change} required={!optional} {...inputOpts} />
+          : <input name={name} value={formData[name]} onChange={change} required={!optional} {...inputOpts} />}
+      </label>
+    );
+  };
   const passwords = <><div className="field-grid">{field('Password', 'password', { type: 'password', placeholder: 'At least 8 characters' })}{field('Confirm password', 'confirmPassword', { type: 'password', placeholder: 'Repeat your password' })}</div>{formData.password && <p className="password-helper">Use at least 8 characters. A mix of letters, numbers and symbols is best.</p>}</>;
 
   const docCheckBanner = key => {

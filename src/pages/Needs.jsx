@@ -29,7 +29,7 @@ export default function Needs() {
   const handleRespond = (need) => {
     if (need.type === 'NEED') {
       if (!user) { navigate('/login'); return; }
-      navigate('/donate');
+      navigate('/donate', { state: { ngoId: need.ngoId, ngoName: need.ngoName } });
       return;
     }
     navigate(`/ngos/${need.ngoId}`);

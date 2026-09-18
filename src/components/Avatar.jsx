@@ -79,14 +79,30 @@ function initialsFor(name) {
 }
 
 /**
- * @param src   avatarUrl / logoUrl from the backend: an https URL, "preset:name", or null
- * @param name  used for the initials and their colour when there is no picture
- * @param size  diameter in pixels
- * @param ring  draw the soft outer ring (used in the navbar, off for dense lists)
+ * @param src     avatarUrl / logoUrl from the backend: an https URL, "preset:name", or null
+ * @param name    used for the initials and their colour when there is no picture
+ * @param size    diameter in pixels
+ * @param ring    draw the soft outer ring (used in the navbar, off for dense lists)
+ * @param variant 'account' (default): photo -> preset -> initials, as described above.
+ *                'person': always a plain human silhouette, ignoring `src` entirely.
+ *                Used for individual users, who have no photo/logo of their own to show
+ *                and would otherwise get the same colour-and-initials badge an NGO gets.
  */
-export default function Avatar({ src, name, size = 40, ring = false, className = '' }) {
+export default function Avatar({ src, name, size = 40, ring = false, className = '', variant = 'account' }) {
   const style = { width: size, height: size, fontSize: Math.round(size * 0.38) };
   const classes = `avatar ${ring ? 'avatar-ring' : ''} ${className}`;
+
+  // 0. No account picture to show at all — a generic silhouette, not initials.
+  if (variant === 'person') {
+    return (
+      <span className={`${classes} avatar-person`} style={style} title={name}>
+        <svg viewBox="0 0 24 24" width="60%" height="60%" fill="currentColor" aria-label={name || 'User'}>
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8v1H4v-1z" />
+        </svg>
+      </span>
+    );
+  }
 
   // 1. An illustration the user picked.
   if (src && src.startsWith('preset:')) {

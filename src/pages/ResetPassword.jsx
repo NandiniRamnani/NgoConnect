@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
+import PasswordInput from '../components/PasswordInput';
 import './Login.css';
 
 export default function ResetPassword() {
@@ -63,11 +64,11 @@ export default function ResetPassword() {
             {error && <div className="alert error">{error}</div>}
             <div className="form-group">
               <label>New password</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" />
+              <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required placeholder="Enter a new password" />
             </div>
             <div className="form-group">
               <label>Confirm new password</label>
-              <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required placeholder="••••••••" />
+              <PasswordInput value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required placeholder="Repeat the new password" />
             </div>
             <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? 'Updating...' : 'Update password'}

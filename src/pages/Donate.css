@@ -115,8 +115,12 @@
   margin-top: 2rem;
 }
 
-/* Common UI */
-button {
+/* Common UI - scoped to this page. A bare `button` selector here used to apply
+   globally (every page's CSS is bundled together), forcing padding/border-radius
+   onto every button in the app, including ones with their own explicit sizing
+   (e.g. the navbar's small round avatar-edit button, stretched into an oval by
+   padding it could not fit inside). */
+.donate-container button {
   cursor: pointer;
   border: none;
   border-radius: 8px;
