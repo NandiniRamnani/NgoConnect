@@ -1,0 +1,60 @@
+flowchart TB
+    classDef actor fill:#dcfce7,stroke:#15803d,stroke-width:2.5px,color:#14532d
+    classDef ext fill:#fef3c7,stroke:#b45309,stroke-width:2.5px,color:#78350f
+    classDef uc fill:#ffffff,stroke:#475569,stroke-width:1.3px,color:#0f172a
+
+    Donor(["👤 DONOR / VOLUNTEER"]):::actor
+
+    subgraph ACC["Account Management"]
+        U1(["Register<br/>Account"]):::uc
+        U2(["Login /<br/>Logout"]):::uc
+        U3(["Reset<br/>Password"]):::uc
+        U4(["Manage Profile<br/>Picture"]):::uc
+    end
+
+    subgraph DON["Donation &amp; Wallet"]
+        U10(["Browse Verified<br/>NGOs"]):::uc
+        U11(["Donate via<br/>Gateway"]):::uc
+        U12(["Top-up<br/>Wallet"]):::uc
+        U13(["Donate from<br/>Wallet"]):::uc
+        U14(["View<br/>Passbook"]):::uc
+        U15(["Download 80G<br/>Receipt"]):::uc
+    end
+
+    subgraph ENG["Events &amp; Engagement"]
+        U21(["Enrol in<br/>Event"]):::uc
+        U23(["Chat with<br/>NGO"]):::uc
+        U24(["View Needs &amp;<br/>Volunteer Calls"]):::uc
+    end
+
+    RZP(["💳 RAZORPAY GATEWAY"]):::ext
+    SMTP(["✉️ MAIL SERVER"]):::ext
+
+    Donor --- U1
+    Donor --- U2
+    Donor --- U3
+    Donor --- U4
+    Donor --- U10
+    Donor --- U11
+    Donor --- U12
+    Donor --- U13
+    Donor --- U14
+    Donor --- U15
+    Donor --- U21
+    Donor --- U23
+    Donor --- U24
+
+    U11 -.->|&lt;&lt;include&gt;&gt;| U15
+    U13 -.->|&lt;&lt;include&gt;&gt;| U15
+    U12 -.->|&lt;&lt;extend&gt;&gt;| U13
+
+    %% Invisible links: force each group to stack vertically so the figure is page-shaped
+    %% rather than one extremely wide row. They influence layout but are not drawn.
+    U1 ~~~ U2 ~~~ U3 ~~~ U4
+    U10 ~~~ U11 ~~~ U12 ~~~ U13 ~~~ U14 ~~~ U15
+    U21 ~~~ U23 ~~~ U24
+
+    U11 --- RZP
+    U12 --- RZP
+    U15 --- SMTP
+    U3 --- SMTP

@@ -1,0 +1,63 @@
+@startuml 04-activity-ngo-registration
+' Activity Diagram - NGO Registration and Verification
+' The second activity diagram, covering the trust workflow that the whole
+' platform rests on. Mirrors the reference "manage hairstylists" figure in
+' shape: a decision that branches into distinct maintenance paths.
+!include common.puml
+
+|NGO|
+start
+:Open NGO registration form;
+:Enter organisation details\n(name, PAN, registration no.,\nDarpan ID, address);
+:Upload Registration Certificate\nand PAN Card;
+
+|SYSTEM|
+:Receive uploaded documents;
+
+if (Document has a text layer?) then ([yes])
+  :Extract text using\nApache PDFBox;
+else ([no - scanned image])
+  :Extract text using\nTesseract OCR;
+endif
+
+:Match text against keywords\nexpected for the document type;
+
+if (Verification result?) then ([UNREADABLE])
+  :Flag document as UNREADABLE;
+elseif (   ) then ([keywords missing])
+  :Flag document as\nLOOKS_SUSPICIOUS;
+else ([keywords found])
+  :Cross-check declared PAN and\nregistration number against text;
+  :Flag document as LOOKS_VALID;
+endif
+
+:Upload documents to Cloudinary\nas private resources;
+:Save NGO with status PENDING;
+:Withhold NGO from all\npublic listings;
+
+|ADMINISTRATOR|
+:Open pending applications queue;
+:View documents through\ntime-limited signed URL;
+:Review automated\nverification flags;
+
+if (Decision?) then ([Reject])
+  |SYSTEM|
+  :Set status REJECTED\nand record reason;
+  |NGO|
+  :Receive rejection\nwith reason;
+  stop
+else ([Approve])
+endif
+
+|SYSTEM|
+:Set status APPROVED;
+:Generate unique NGO identifier;
+:Create zero NGO balance record;
+:Publish NGO to public listings;
+
+|NGO|
+:Sign in and manage profile,\nevents, needs and finances;
+
+stop
+
+@enduml

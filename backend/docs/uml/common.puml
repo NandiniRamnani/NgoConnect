@@ -1,0 +1,104 @@
+' ============================================================================
+'  Shared look for every NGOConnect diagram.
+'
+'  Included by each .puml file so all figures in the report share one visual
+'  language - the same fonts, the same black-on-white line work, the same
+'  node shapes. A report whose figures each look slightly different reads as
+'  though they were collected from different places rather than designed.
+'
+'  Times New Roman is used to match the body text of the document, per the
+'  formatting guidelines.
+' ============================================================================
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 13
+skinparam dpi 200
+
+skinparam ArrowColor #000000
+skinparam ArrowFontName "Times New Roman"
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #000000
+
+skinparam actor {
+    BorderColor #000000
+    BackgroundColor #FFFFFF
+    FontName "Times New Roman"
+    FontSize 13
+    FontStyle bold
+}
+
+skinparam usecase {
+    BorderColor #000000
+    BackgroundColor #FFFFFF
+    BorderThickness 1.6
+    FontName "Times New Roman"
+    FontSize 12
+}
+
+skinparam rectangle {
+    BorderColor #000000
+    BackgroundColor #FFFFFF
+    FontName "Times New Roman"
+    FontSize 13
+    FontStyle bold
+}
+
+skinparam class {
+    BorderColor #000000
+    BackgroundColor #FFFFFF
+    HeaderBackgroundColor #FFFFFF
+    ArrowColor #000000
+    FontName "Times New Roman"
+    FontSize 12
+    AttributeFontName "Times New Roman"
+    AttributeFontSize 11
+}
+
+skinparam activity {
+    BorderColor #000000
+    BackgroundColor #FFFFFF
+    DiamondBorderColor #000000
+    DiamondBackgroundColor #FFFFFF
+    DiamondFontName "Times New Roman"
+    DiamondFontSize 11
+    FontName "Times New Roman"
+    FontSize 12
+    StartColor #000000
+    EndColor #000000
+    BarColor #000000
+}
+
+skinparam partition {
+    BorderColor #000000
+    FontName "Times New Roman"
+    FontSize 13
+    FontStyle bold
+}
+
+skinparam sequence {
+    ArrowColor #000000
+    LifeLineBorderColor #000000
+    LifeLineBackgroundColor #FFFFFF
+    ParticipantBorderColor #000000
+    ParticipantBackgroundColor #FFFFFF
+    ParticipantFontName "Times New Roman"
+    ParticipantFontSize 12
+    ParticipantFontStyle bold
+    ActorBorderColor #000000
+    ActorBackgroundColor #FFFFFF
+    BoxBorderColor #000000
+    GroupBorderColor #000000
+    GroupBackgroundColor #FFFFFF
+    GroupHeaderFontName "Times New Roman"
+    GroupHeaderFontSize 11
+    DividerBackgroundColor #FFFFFF
+}
+
+skinparam note {
+    BorderColor #000000
+    BackgroundColor #FFFFFF
+    FontName "Times New Roman"
+    FontSize 11
+}

@@ -1,0 +1,52 @@
+flowchart TB
+    classDef startEnd fill:#16a34a,stroke:#14532d,stroke-width:2.5px,color:#ffffff
+    classDef action fill:#ffffff,stroke:#334155,stroke-width:1.3px,color:#0f172a
+    classDef decision fill:#fef3c7,stroke:#b45309,stroke-width:1.8px,color:#78350f
+    classDef fail fill:#fee2e2,stroke:#b91c1c,stroke-width:1.8px,color:#7f1d1d
+    classDef ok fill:#dcfce7,stroke:#15803d,stroke-width:1.8px,color:#14532d
+
+    START([Donor selects an NGO<br/>and enters an amount]):::startEnd
+    D1{Logged in?}:::decision
+    LOGIN[Redirect to Login]:::action
+    D2{Payment route?}:::decision
+
+    subgraph WALLETPATH["Wallet Route — one request, no gateway"]
+        W1[Save Donation<br/>as PENDING_PAYMENT]:::action
+        W2[Atomic conditional debit<br/>WHERE balance &gt;= amount]:::action
+        D3{Balance<br/>sufficient?}:::decision
+        W3[Write DONATION ledger row<br/>and mark Donation PAID]:::action
+    end
+
+    subgraph GATEWAY["Gateway Route — two requests, Razorpay"]
+        G1[Save Donation as PENDING_PAYMENT<br/>and create Razorpay Order]:::action
+        G2[Donor pays in<br/>Checkout popup]:::action
+        D4{HMAC signature<br/>valid?}:::decision
+        G3[Atomically claim row<br/>PENDING_PAYMENT to PAID]:::action
+        D5{Claim won?}:::decision
+    end
+
+    C1[Credit NGO clearing bucket<br/>and write ledger entry]:::ok
+    C2[Assign 80G receipt number,<br/>render PDF, email to donor]:::ok
+
+    F1[Mark FAILED<br/>and show error]:::fail
+    F2[Reject — insufficient balance,<br/>prompt to top up]:::fail
+    F3[Already credited —<br/>return existing donation]:::action
+
+    CLEAR[Scheduled job later promotes<br/>clearing to available]:::action
+    END([End]):::startEnd
+
+    START --> D1
+    D1 -- No --> LOGIN --> D1
+    D1 -- Yes --> D2
+
+    D2 -- Wallet --> W1 --> W2 --> D3
+    D3 -- No --> F2 --> END
+    D3 -- Yes --> W3 --> C1
+
+    D2 -- Card / UPI --> G1 --> G2 --> D4
+    D4 -- No --> F1 --> END
+    D4 -- Yes --> G3 --> D5
+    D5 -- No --> F3 --> END
+    D5 -- Yes --> C1
+
+    C1 --> C2 --> CLEAR --> END

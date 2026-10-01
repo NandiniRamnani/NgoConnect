@@ -1,0 +1,161 @@
+classDiagram
+    direction TB
+
+    class Account {
+        -String id
+        -String fullName
+        -String email
+        -String password
+        -String role
+        -boolean active
+        -String avatarUrl
+        -String resetToken
+        +getId() String
+        +getEmail() String
+    }
+
+    class Ngo {
+        -String id
+        -String ngoName
+        -String email
+        -String registrationNumber
+        -String panNumber
+        -String ngoDarpanId
+        -VerificationStatus verificationStatus
+        -String logoUrl
+        -List~NgoDocument~ documents
+        +getNgoName() String
+    }
+
+    class Donation {
+        -String id
+        -String ngoId
+        -String userId
+        -BigDecimal amount
+        -DonationStatus status
+        -PaymentMode paymentMode
+        -String razorpayOrderId
+        -String paymentReference
+        -String receiptNumber
+        -Instant createdAt
+    }
+
+    class Wallet {
+        -String id
+        -String userId
+        -long balancePaise
+        -Instant updatedAt
+        +getBalance() BigDecimal
+    }
+
+    class WalletTransaction {
+        -String id
+        -String userId
+        -WalletTransactionType type
+        -WalletTransactionStatus status
+        -long amountPaise
+        -Long balanceAfterPaise
+        -String razorpayOrderId
+        -String donationId
+        +getAmount() BigDecimal
+    }
+
+    class NgoBalance {
+        -String ngoId
+        -long clearingPaise
+        -long availablePaise
+        -long reservedPaise
+        -long lifetimeReceivedPaise
+        -long lifetimeWithdrawnPaise
+    }
+
+    class NgoLedgerEntry {
+        -String id
+        -String ngoId
+        -NgoLedgerEntryType type
+        -long amountPaise
+        -boolean cleared
+        -Instant clearsAt
+    }
+
+    class WithdrawalRequest {
+        -String id
+        -String ngoId
+        -long amountPaise
+        -WithdrawalStatus status
+        -String decisionNote
+    }
+
+    class Event {
+        -String id
+        -String ngoId
+        -String title
+        -Instant eventDate
+        -int maxSpots
+        -int enrolledCount
+    }
+
+    class EventEnrollment {
+        -String id
+        -String eventId
+        -String userId
+        -boolean attended
+    }
+
+    class DonationService {
+        +createOrder(email, request) CreateOrderResponse
+        +verifyPayment(email, request) Donation
+        +donateFromWallet(email, request) Donation
+        +receiptPdf(email, donationId) byte[]
+        -claimAndCredit(donation, ...) Donation
+    }
+
+    class WalletService {
+        +getOrCreateWallet(userId) Wallet
+        +createTopUpOrder(email, req) TopUpOrderResponse
+        +verifyTopUp(email, req) Wallet
+        +debitForDonation(...) WalletTransaction
+        +refundDonation(...) WalletTransaction
+        -credit(userId, paise) Wallet
+        -debit(userId, paise) Wallet
+    }
+
+    class NgoBalanceService {
+        +creditFromDonation(...) void
+        +releaseClearedFunds() void
+        +reserve(ngoId, paise, id) NgoBalance
+        +settle(ngoId, paise, id) NgoBalance
+        +release(ngoId, paise, id) NgoBalance
+    }
+
+    class ReceiptService {
+        +nextReceiptNumber(when) String
+        +generatePdf(donation, ...) byte[]
+        +rupeesInWords(amount) String
+    }
+
+    class PaymentWebhookService {
+        +handle(rawBody, signature) String
+    }
+
+    Account "1" --> "1" Wallet : owns
+    Account "1" --> "*" Donation : makes
+    Account "1" --> "*" WalletTransaction : records
+    Wallet "1" --> "*" WalletTransaction : ledger of
+    Ngo "1" --> "*" Donation : receives
+    Ngo "1" --> "1" NgoBalance : holds
+    NgoBalance "1" --> "*" NgoLedgerEntry : audited by
+    Ngo "1" --> "*" WithdrawalRequest : requests
+    Ngo "1" --> "*" Event : organises
+    Event "1" --> "*" EventEnrollment : has
+    Account "1" --> "*" EventEnrollment : enrols
+    Donation "1" --> "0..1" WalletTransaction : funded by
+
+    DonationService ..> Donation : manages
+    DonationService ..> WalletService : debits via
+    DonationService ..> NgoBalanceService : credits via
+    DonationService ..> ReceiptService : issues 80G
+    WalletService ..> Wallet : owns balance
+    NgoBalanceService ..> NgoBalance : owns buckets
+    PaymentWebhookService ..> DonationService : completes
+    PaymentWebhookService ..> WalletService : completes

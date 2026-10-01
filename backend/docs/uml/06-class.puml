@@ -1,0 +1,205 @@
+@startuml 06-class
+' Class Diagram - NGOConnect
+' Standard UML class notation: three compartments (name / attributes /
+' operations), "-" for private and "+" for public, named associations carrying
+' multiplicities at both ends.
+!include common.puml
+!pragma layout smetana
+
+skinparam linetype ortho
+
+class Account {
+    -account_id: String
+    -full_name: String
+    -email: String
+    -password: String
+    -role: String
+    -active: boolean
+    -avatar_url: String
+    --
+    +register()
+    +login()
+    +reset_password()
+}
+
+class Ngo {
+    -ngo_id: String
+    -ngo_name: String
+    -email: String
+    -registration_number: String
+    -pan_number: String
+    -ngo_darpan_id: String
+    -verification_status: String
+    -logo_url: String
+    --
+    +register_ngo()
+    +update_profile()
+    +upload_documents()
+}
+
+class NgoDocument {
+    -doc_type: String
+    -file_name: String
+    -cloudinary_id: String
+    -verification_status: String
+    -uploaded_at: Instant
+    --
+    +verify_document()
+}
+
+class Donation {
+    -donation_id: String
+    -ngo_id: String
+    -user_id: String
+    -amount: BigDecimal
+    -status: String
+    -payment_mode: String
+    -razorpay_order_id: String
+    -receipt_number: String
+    --
+    +create_order()
+    +verify_payment()
+    +generate_receipt()
+}
+
+class Wallet {
+    -wallet_id: String
+    -user_id: String
+    -balance_paise: long
+    --
+    +credit()
+    +debit()
+    +get_balance()
+}
+
+class WalletTransaction {
+    -transaction_id: String
+    -user_id: String
+    -type: String
+    -status: String
+    -amount_paise: long
+    -balance_after_paise: Long
+    --
+    +record_topup()
+    +record_donation()
+    +record_refund()
+}
+
+class NgoBalance {
+    -ngo_id: String
+    -clearing_paise: long
+    -available_paise: long
+    -reserved_paise: long
+    -lifetime_received_paise: long
+    --
+    +credit_from_donation()
+    +reserve()
+    +settle()
+}
+
+class NgoLedgerEntry {
+    -entry_id: String
+    -ngo_id: String
+    -type: String
+    -amount_paise: long
+    -cleared: boolean
+    -clears_at: Instant
+    --
+    +release_cleared_funds()
+}
+
+class WithdrawalRequest {
+    -withdrawal_id: String
+    -ngo_id: String
+    -amount_paise: long
+    -status: String
+    -requested_at: Instant
+    --
+    +request_withdrawal()
+    +approve()
+    +reject()
+}
+
+class NgoPayoutMethod {
+    -payout_id: String
+    -ngo_id: String
+    -type: String
+    -masked_destination: String
+    -verified: boolean
+    --
+    +set_payout_method()
+    +verify()
+}
+
+class Event {
+    -event_id: String
+    -ngo_id: String
+    -title: String
+    -event_date: Instant
+    -max_spots: int
+    -enrolled_count: int
+    --
+    +create_event()
+    +delete_event()
+}
+
+class EventEnrollment {
+    -enrollment_id: String
+    -event_id: String
+    -user_id: String
+    -attended: Boolean
+    --
+    +enrol()
+    +mark_attendance()
+}
+
+class NgoNotification {
+    -notification_id: String
+    -ngo_id: String
+    -title: String
+    -type: String
+    -required_volunteers: Integer
+    --
+    +post_need()
+    +deactivate()
+}
+
+class ChatRoom {
+    -room_id: String
+    -ngo_id: String
+    -user_id: String
+    -last_message_at: Instant
+    --
+    +start_chat()
+}
+
+class ChatMessage {
+    -message_id: String
+    -room_id: String
+    -sender_type: String
+    -content: String
+    -read: boolean
+    --
+    +send_message()
+}
+
+' ---- Associations, with multiplicities at both ends ----
+Account "1" -- "1" Wallet : owns >
+Wallet "1" -- "*" WalletTransaction : records >
+Account "1" -- "*" Donation : makes >
+Ngo "1" -- "*" Donation : receives >
+Ngo "1" -- "*" NgoDocument : submits >
+Ngo "1" -- "1" NgoBalance : holds >
+NgoBalance "1" -- "*" NgoLedgerEntry : audited by >
+Ngo "1" -- "*" WithdrawalRequest : requests >
+Ngo "1" -- "1" NgoPayoutMethod : registers >
+Ngo "1" -- "*" Event : organises >
+Event "1" -- "*" EventEnrollment : has >
+Account "1" -- "*" EventEnrollment : enrols in >
+Ngo "1" -- "*" NgoNotification : publishes >
+Account "1" -- "*" ChatRoom : participates >
+Ngo "1" -- "*" ChatRoom : participates >
+ChatRoom "1" -- "*" ChatMessage : contains >
+Donation "1" -- "0..1" WalletTransaction : funded by >
+
+@enduml

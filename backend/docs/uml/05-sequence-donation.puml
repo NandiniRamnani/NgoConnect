@@ -1,0 +1,100 @@
+@startuml 05-sequence-donation
+' Sequence Diagram - Donate via Payment Gateway
+' Uses the analysis stereotypes shown in the reference figure: an actor, a
+' boundary (the screen), a control (the coordinating object) and entities
+' (persistent stores), plus activation bars, solid call arrows, dashed return
+' arrows, and an "alt" combined fragment for the two verification outcomes.
+!include common.puml
+
+title SD_Donate_Via_Gateway
+
+actor "Customer\n(Donor)" as DONOR
+boundary "DonateForm" as FORM
+control "DonationController" as CTRL
+entity "Database" as DB
+entity "RazorpayGateway" as RZP
+
+activate DONOR
+
+DONOR -> FORM : selectNgoAndAmount()
+activate FORM
+
+FORM -> CTRL : createOrder(ngoId, amount)
+activate CTRL
+
+CTRL -> CTRL : validateAmount()
+activate CTRL
+deactivate CTRL
+
+CTRL -> DB : saveDonation(PENDING_PAYMENT)
+activate DB
+DB --> CTRL : donationId
+deactivate DB
+
+CTRL -> RZP : createOrder(amountInPaise, INR)
+activate RZP
+RZP --> CTRL : razorpayOrderId
+deactivate RZP
+
+CTRL -> DB : storeOrderId(donationId)
+activate DB
+DB --> CTRL : return
+deactivate DB
+
+CTRL --> FORM : orderId, amount, keyId
+deactivate CTRL
+
+FORM -> RZP : openCheckout(orderId)
+activate RZP
+DONOR -> RZP : authorisePayment()
+RZP --> FORM : paymentId, signature
+deactivate RZP
+
+FORM -> CTRL : verifyPayment(orderId,\npaymentId, signature)
+activate CTRL
+
+CTRL -> CTRL : recomputeHmacSignature()
+activate CTRL
+deactivate CTRL
+
+alt [signature is valid]
+
+    CTRL -> DB : claimDonation(PENDING -> PAID)
+    activate DB
+    DB --> CTRL : claimedDonation
+    deactivate DB
+
+    CTRL -> DB : creditNgoClearingBalance()
+    activate DB
+    DB --> CTRL : return
+    deactivate DB
+
+    CTRL -> DB : assignReceiptNumber()
+    activate DB
+    DB --> CTRL : receiptNumber
+    deactivate DB
+
+    CTRL -> CTRL : generateReceiptPdf()
+    activate CTRL
+    deactivate CTRL
+
+    CTRL --> FORM : Donation Confirmed
+    FORM --> DONOR : Show confirmation\nand receipt download
+
+else [signature is invalid]
+
+    CTRL -> DB : markDonationFailed()
+    activate DB
+    DB --> CTRL : return
+    deactivate DB
+
+    CTRL --> FORM : Payment Rejected
+    FORM --> DONOR : Show "Payment could\nnot be verified"
+
+end
+
+deactivate CTRL
+deactivate FORM
+deactivate DONOR
+
+@enduml

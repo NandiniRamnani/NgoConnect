@@ -1,0 +1,63 @@
+@startuml 01-usecase-donor
+' Use Case Diagram - Donor / Volunteer
+' Standard UML: stick-figure actor outside a system boundary, use cases as
+' ellipses inside it, undirected association lines between them.
+!include common.puml
+!pragma layout smetana
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "DONOR /\nVOLUNTEER" as DONOR
+
+rectangle "NGOConnect System" {
+
+    usecase "Register\nAccount" as UC1
+    usecase "Login /\nLogout" as UC2
+    usecase "Reset\nPassword" as UC3
+    usecase "Manage Profile\nPicture" as UC4
+
+    usecase "Browse Verified\nNGOs" as UC5
+    usecase "View NGO\nProfile" as UC6
+    usecase "Donate via\nPayment Gateway" as UC7
+    usecase "Top-up\nWallet" as UC8
+    usecase "Donate from\nWallet Balance" as UC9
+    usecase "View Wallet\nPassbook" as UC10
+    usecase "Download 80G\nTax Receipt" as UC11
+
+    usecase "View Events" as UC12
+    usecase "Enrol in\nEvent" as UC13
+    usecase "View Needs &\nVolunteer Calls" as UC14
+    usecase "Chat with\nNGO" as UC15
+
+    usecase "Verify Payment\nSignature" as UC16
+    usecase "Generate\nReceipt PDF" as UC17
+}
+
+DONOR -- UC1
+DONOR -- UC2
+DONOR -- UC3
+DONOR -- UC4
+DONOR -- UC5
+DONOR -- UC6
+DONOR -- UC7
+DONOR -- UC8
+DONOR -- UC9
+DONOR -- UC10
+DONOR -- UC11
+DONOR -- UC12
+DONOR -- UC13
+DONOR -- UC14
+DONOR -- UC15
+
+' <<include>> - the included behaviour always runs as part of the base use case.
+UC7 ..> UC16 : <<include>>
+UC8 ..> UC16 : <<include>>
+UC7 ..> UC17 : <<include>>
+UC9 ..> UC17 : <<include>>
+
+' <<extend>> - optional behaviour that may be triggered from the base use case.
+UC9 ..> UC8 : <<extend>>
+UC5 ..> UC6 : <<include>>
+
+@enduml

@@ -1,0 +1,67 @@
+sequenceDiagram
+    autonumber
+    actor D as Donor
+    participant UI as React Frontend
+    participant WC as WalletController
+    participant WS as WalletService
+    participant DB as MongoDB
+    participant RZP as Razorpay Gateway
+    participant WH as PaymentWebhookService
+
+    Note over D,RZP: Step 1 — Reserve the order (no money moves yet)
+
+    D->>UI: Enter top-up amount, click Add Money
+    UI->>WC: POST /api/wallet/topup/create-order
+    WC->>WS: createTopUpOrder(email, amount)
+    WS->>WS: Validate Rs.1 .. Rs.1,00,000
+    WS->>DB: Upsert Wallet (findAndModify)
+    WS->>DB: Insert WalletTransaction (PENDING)
+    WS->>RZP: orders.create(amount, INR, receipt)
+    RZP-->>WS: order_id
+    WS->>DB: Store razorpayOrderId on row
+    WS-->>UI: TopUpOrderResponse(orderId, amount, keyId)
+
+    Note over D,RZP: Step 2 — Donor pays inside Razorpay Checkout
+
+    UI->>RZP: Open Checkout popup with order_id
+    D->>RZP: Choose UPI / Card and authorise
+    RZP-->>UI: payment_id + signature
+
+    Note over UI,DB: Step 3 — Verify, then credit exactly once
+
+    UI->>WC: POST /api/wallet/topup/verify
+    WC->>WS: verifyTopUp(email, request)
+    WS->>DB: findByRazorpayOrderId
+    DB-->>WS: WalletTransaction
+    WS->>WS: Check ownership and status
+
+    alt Signature invalid
+        WS->>DB: Conditional update to FAILED
+        WS-->>UI: 400 Payment could not be verified
+    else Signature valid
+        WS->>DB: findAndModify PENDING to COMPLETED
+        alt Claim won
+            DB-->>WS: Claimed row
+            WS->>DB: inc balancePaise (atomic)
+            WS->>DB: Stamp balanceAfterPaise
+            WS-->>UI: Updated Wallet
+            UI-->>D: New balance and passbook entry
+        else Claim lost (already credited)
+            DB-->>WS: null
+            WS-->>UI: Existing Wallet (idempotent)
+        end
+    end
+
+    Note over RZP,WH: Safety net — fires even if the browser never returned
+
+    RZP->>WH: POST /api/payments/webhook (payment.captured)
+    WH->>WH: Verify HMAC-SHA256 over raw body
+    WH->>WS: completeTopUpFromWebhook(orderId, paymentId, amount)
+    WS->>DB: Same conditional claim
+    alt Row still PENDING
+        WS->>DB: Credit balance
+        WS-->>WH: true (credited)
+    else Already settled by browser
+        WS-->>WH: false (no-op)
+    end
+    WH-->>RZP: 200 OK

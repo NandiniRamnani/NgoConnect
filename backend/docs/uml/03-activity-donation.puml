@@ -1,0 +1,83 @@
+@startuml 03-activity-donation
+' Activity Diagram - Donation Process
+' Swimlanes (partitions) divide responsibility between the three participants,
+' exactly as the reference SYSTEM | HAIRSTYLIST layout does.
+!include common.puml
+
+|DONOR|
+start
+:Select an NGO and\nenter donation amount;
+
+|SYSTEM|
+if (Donor logged in?) then ([no])
+  |DONOR|
+  :Redirect to Login;
+  detach
+else ([yes])
+endif
+
+|DONOR|
+:Choose payment method;
+
+|SYSTEM|
+if (Payment route?) then ([Wallet Balance])
+
+  :Save Donation as\nPENDING_PAYMENT;
+  :Attempt atomic debit\n(balance >= amount);
+
+  if (Balance sufficient?) then ([no])
+    :Mark Donation FAILED;
+    |DONOR|
+    :Show "Insufficient balance,\nplease top up";
+    stop
+  else ([yes])
+  endif
+
+  :Write DONATION ledger entry;
+  :Mark Donation PAID;
+
+else ([Card / UPI / Netbanking])
+
+  :Save Donation as\nPENDING_PAYMENT;
+  :Create order at\npayment gateway;
+
+  |PAYMENT GATEWAY|
+  :Display checkout\nto donor;
+  :Collect payment;
+  :Return payment id\nand signature;
+
+  |SYSTEM|
+  if (Signature valid?) then ([no])
+    :Mark Donation FAILED;
+    |DONOR|
+    :Show "Payment could not\nbe verified";
+    stop
+  else ([yes])
+  endif
+
+  if (Atomic claim won?) then ([no])
+    :Already credited by\nwebhook or retry;
+    |DONOR|
+    :Show existing donation;
+    stop
+  else ([yes])
+  endif
+
+  :Mark Donation PAID;
+
+endif
+
+:Credit NGO clearing balance\nand write ledger entry;
+:Assign 80G receipt number\nNGOC/YYYY-YY/NNNNNN;
+:Generate receipt PDF;
+:Email receipt to donor;
+
+|DONOR|
+:View confirmation and\ndownload receipt;
+
+|SYSTEM|
+:Scheduled job later promotes\nclearing to available balance;
+
+stop
+
+@enduml

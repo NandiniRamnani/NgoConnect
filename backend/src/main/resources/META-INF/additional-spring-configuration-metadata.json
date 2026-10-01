@@ -1,0 +1,36 @@
+{
+  "groups": [],
+  "properties": [
+    {
+      "name": "ngo-admin.username",
+      "type": "java.lang.String",
+      "description": "Email used to sign in to the /api/admin/** endpoints as the local admin account. Can also be overridden via the NGO_ADMIN_USERNAME environment variable."
+    },
+    {
+      "name": "ngo-admin.password",
+      "type": "java.lang.String",
+      "description": "Password for the local admin account. Override in production; never commit real credentials. Can also be overridden via the NGO_ADMIN_PASSWORD environment variable."
+    },
+    {
+      "name": "cloudinary.cloud-name",
+      "type": "java.lang.String",
+      "description": "Cloudinary account cloud name, used to upload NGO documents and media."
+    },
+    {
+      "name": "cloudinary.api-key",
+      "type": "java.lang.String",
+      "description": "Cloudinary API key."
+    },
+    {
+      "name": "cloudinary.api-secret",
+      "type": "java.lang.String",
+      "description": "Cloudinary API secret."
+    },
+    {
+      "name": "app.frontend-url",
+      "type": "java.lang.String",
+      "description": "Base URL of the running frontend, used to build the link inside password-reset emails."
+    }
+  ],
+  "hints": []
+}
