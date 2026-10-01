@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import './Donate.css';
 import DemoCheckout from '../components/DemoCheckout';
+import Avatar from '../components/Avatar';
+import { MEAL_LABEL, GROUP_LABEL, dayLabel, formatRupees } from '../utils/foodSlots';
 
 const AMOUNTS = [100, 500, 1000, 5000];
 
@@ -11,6 +13,13 @@ const Donate = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  /**
+   * Set when the donor clicked "Sponsor this meal" on the Food Slots page. The amount is then the
+   * slot's cost and cannot be edited — the backend ignores any other amount anyway and charges
+   * exactly what the NGO posted.
+   */
+  const foodSlot = location.state?.foodSlot || null;
 
   const [step, setStep] = useState(1);
   const [selectedNGO, setSelectedNGO] = useState(null);
@@ -50,12 +59,19 @@ const Donate = () => {
    */
   useEffect(() => {
     if (!ngosLoaded || selectedNGO) return;
+    // Sponsoring a meal: NGO and amount are both fixed, so go straight to payment.
+    if (foodSlot) {
+      const match = ngos.find(n => n.id === foodSlot.ngoId);
+      setSelectedNGO(match || { id: foodSlot.ngoId, ngoName: foodSlot.ngoName });
+      setStep(3);
+      return;
+    }
     const presetNgoId = location.state?.ngoId;
     if (presetNgoId == null) return;
     const match = ngos.find(n => n.id === presetNgoId);
     setSelectedNGO(match || { id: presetNgoId, ngoName: location.state?.ngoName || 'NGO' });
     setStep(2);
-  }, [ngosLoaded, ngos, location.state, selectedNGO]);
+  }, [ngosLoaded, ngos, location.state, selectedNGO, foodSlot]);
 
   // Load the balance so step 3 can show it and disable the wallet option when it is short.
   // GET /api/wallet creates an empty wallet on first call, so a new donor sees 0.00, not an error.
@@ -67,9 +83,16 @@ const Donate = () => {
   }, [user, authHeaders]);
 
   const handleNext = () => setStep((prev) => Math.min(prev + 1, 4));
-  const handleBack = () => setStep((prev) => Math.max(prev - 1, 1));
+  // A meal sponsorship skipped steps 1–2, so "Back" returns to the slot list instead.
+  const handleBack = () => {
+    if (foodSlot) { navigate('/food-slots'); return; }
+    setStep((prev) => Math.max(prev - 1, 1));
+  };
 
-  const currentAmount = amount === 'custom' ? customAmount : amount;
+  const currentAmount = foodSlot ? String(foodSlot.amount) : (amount === 'custom' ? customAmount : amount);
+  const slotLabel = foodSlot
+    ? `${MEAL_LABEL[foodSlot.mealType]} for ${foodSlot.peopleCount} ${GROUP_LABEL[foodSlot.beneficiaryGroup].toLowerCase()} · ${dayLabel(foodSlot.date)}`
+    : '';
 
   const walletBalance = Number(wallet?.balance ?? 0);
   const walletCovers = wallet != null && walletBalance >= Number(currentAmount || 0);
@@ -94,6 +117,7 @@ const Donate = () => {
       const response = await api.post('/donations/wallet', {
         ngoId: selectedNGO.id,
         amount: Number(currentAmount),
+        foodSlotId: foodSlot?.id,
       }, authHeaders());
       setPaymentReference(response.data.paymentReference);
       // Re-read the balance rather than subtracting locally — the server is the source of truth.
@@ -137,6 +161,7 @@ const Donate = () => {
       const orderRes = await api.post('/donations/create-order', {
         ngoId: selectedNGO.id,
         amount: Number(currentAmount),
+        foodSlotId: foodSlot?.id,
       }, authHeaders());
       const order = orderRes.data;
 
@@ -156,7 +181,7 @@ const Donate = () => {
         currency: order.currency,
         order_id: order.razorpayOrderId,
         name: 'NGOConnect',
-        description: `Donation to ${selectedNGO.ngoName}`,
+        description: foodSlot ? `Meal sponsorship · ${selectedNGO.ngoName}` : `Donation to ${selectedNGO.ngoName}`,
         prefill: { name: user.fullName || '', email: user.email || '' },
         theme: { color: '#1c5c42' },
         handler: async (response) => {
@@ -196,14 +221,14 @@ const Donate = () => {
       {demoOrder && (
         <DemoCheckout
           amountPaise={demoOrder.amount}
-          description={`Donation to ${selectedNGO?.ngoName || 'NGO'}`}
+          description={foodSlot ? `Meal sponsorship · ${selectedNGO?.ngoName || 'NGO'}` : `Donation to ${selectedNGO?.ngoName || 'NGO'}`}
           onSuccess={(response) => confirmDonation(demoOrder.razorpayOrderId, response)}
           onFailure={(message) => { setSubmitError(message); setSubmitting(false); setDemoOrder(null); }}
           onClose={() => { setDemoOrder(null); setSubmitting(false); }}
         />
       )}
       <div className="donate-header">
-        <h1>Make a Donation</h1>
+        <h1>{foodSlot ? 'Sponsor a Meal' : 'Make a Donation'}</h1>
         <div className="progress-bar-container">
           <div className="progress-bar" style={{ width: `${(step / 4) * 100}%` }}></div>
         </div>
@@ -222,7 +247,7 @@ const Donate = () => {
                     className={`ngo-card ${selectedNGO?.id === ngo.id ? 'selected' : ''}`}
                     onClick={() => setSelectedNGO(ngo)}
                   >
-                    <div className="ngo-emoji">{ngo.emoji}</div>
+                    <div className="ngo-emoji"><Avatar src={ngo.logoUrl} name={ngo.ngoName} size={64} /></div>
                     <h3>{ngo.ngoName}</h3>
                     <span className="ngo-cause">{ngo.ngoType}</span>
                     <p>{ngo.description}</p>
@@ -270,7 +295,20 @@ const Donate = () => {
           {step === 3 && (
             <div className="step-content step-3 animate-fade-in">
               <h2>Review &amp; Pay</h2>
-              <p>You're donating <strong>₹{currentAmount}</strong> to <strong>{selectedNGO?.ngoName}</strong>.</p>
+              {foodSlot ? (
+                <p>
+                  You're sponsoring <strong>{slotLabel}</strong> at <strong>{selectedNGO?.ngoName}</strong> for{' '}
+                  <strong>{formatRupees(foodSlot.amount)}</strong>
+                  {foodSlot.costPerPerson != null && <> ({formatRupees(foodSlot.costPerPerson)} per person × {foodSlot.peopleCount})</>}.
+                  {foodSlot.menu && <><br /><small>Menu: {foodSlot.menu}</small></>}
+                  {(selectedNGO?.address || selectedNGO?.location) && (
+                    <><br /><small>Served at: {selectedNGO.address || selectedNGO.location}</small></>
+                  )}
+                  <br /><small>The price is set by the NGO. The full amount goes to them, and you get an 80G receipt by email.</small>
+                </p>
+              ) : (
+                <p>You're donating <strong>₹{currentAmount}</strong> to <strong>{selectedNGO?.ngoName}</strong>.</p>
+              )}
 
               <div className="pay-method-list">
                 {/* Wallet option — only offered to donors who actually have a wallet. */}
@@ -325,7 +363,11 @@ const Donate = () => {
             <div className="step-content step-4 animate-scale-up">
               <div className="success-icon">🎉</div>
               <h2>Thank You!</h2>
-              <p>Your generous donation of <strong>₹{currentAmount}</strong> to <strong>{selectedNGO?.ngoName}</strong> has been processed successfully.</p>
+              {foodSlot ? (
+                <p>You've sponsored <strong>{slotLabel}</strong> at <strong>{selectedNGO?.ngoName}</strong>. Thank you for feeding them!</p>
+              ) : (
+                <p>Your generous donation of <strong>₹{currentAmount}</strong> to <strong>{selectedNGO?.ngoName}</strong> has been processed successfully.</p>
+              )}
               {paymentReference && (
                 <p className="donation-reference">
                   Paid via {payMethod === 'wallet' ? 'wallet balance' : 'Razorpay'} · Reference: {paymentReference}
@@ -337,8 +379,8 @@ const Donate = () => {
                 <span className="confetti">🙌</span>
                 <span className="confetti">🌟</span>
               </div>
-              <button className="btn-primary mt-4" onClick={() => navigate('/dashboard')}>
-                Go to Dashboard
+              <button className="btn-primary mt-4" onClick={() => navigate(foodSlot ? '/food-slots' : '/dashboard')}>
+                {foodSlot ? 'Back to Food Slots' : 'Go to Dashboard'}
               </button>
             </div>
           )}
@@ -352,6 +394,12 @@ const Donate = () => {
                 <span>NGO:</span>
                 <strong>{selectedNGO ? selectedNGO.ngoName : 'Not selected'}</strong>
               </div>
+              {foodSlot && (
+                <div className="summary-item">
+                  <span>Meal:</span>
+                  <strong>{slotLabel}</strong>
+                </div>
+              )}
               <div className="summary-item">
                 <span>Amount:</span>
                 <strong>{currentAmount ? `₹${currentAmount}` : '-'}</strong>

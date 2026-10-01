@@ -1,0 +1,136 @@
+.mg-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 2.5rem 1rem;
+  border: 1.5px dashed var(--border-light);
+  border-radius: 14px;
+  color: var(--text3);
+  text-align: center;
+}
+.mg-empty p { margin: 0; max-width: 420px; font-size: 14px; line-height: 1.5; }
+
+.mg-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.mg-tabs button {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 13px; font-weight: 600; font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.mg-tabs button span { font-size: 11px; padding: 0 6px; border-radius: 999px; background: var(--surface2); color: var(--text3); }
+.mg-tabs button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.mg-tabs button.active span { background: rgba(255, 255, 255, 0.2); color: #fff; }
+
+.mg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.mg-tile { position: relative; margin: 0; }
+.mg-tile-open {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface2);
+  cursor: zoom-in;
+}
+.mg-tile-open .media-thumb { transition: transform 0.35s ease; }
+.mg-tile-open:hover .media-thumb { transform: scale(1.05); }
+.mg-tile-open:hover .media-play { transform: translate(-50%, -50%) scale(1.1); background: var(--primary); }
+.mg-tile-open:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+/* Caption sits on a gradient over the bottom of the image, like a photo app. */
+.mg-tile-caption {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 26px 10px 8px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+  color: #fff;
+  font-size: 12.5px;
+  line-height: 1.35;
+  text-align: left;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mg-tile-delete {
+  position: absolute; top: 8px; right: 8px;
+  display: grid; place-items: center;
+  width: 32px; height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--error);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: var(--transition);
+}
+.mg-tile:hover .mg-tile-delete, .mg-tile-delete:focus-visible { opacity: 1; transform: none; }
+.mg-tile-delete:hover { background: var(--error); color: #fff; }
+/* Touch screens have no hover, so the remove button is always visible there. */
+@media (hover: none) { .mg-tile-delete { opacity: 1; transform: none; } }
+
+/* ── Lightbox ──────────────────────────────────────────── */
+.mg-lightbox {
+  position: fixed; inset: 0;
+  z-index: 2000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 56px 72px 24px;
+  background: rgba(10, 9, 7, 0.94);
+  animation: mgFade 0.2s ease;
+}
+@keyframes mgFade { from { opacity: 0; } to { opacity: 1; } }
+.mg-lightbox-top {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+}
+.mg-lightbox-top button, .mg-nav {
+  display: grid; place-items: center;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.mg-lightbox-top button { width: 40px; height: 40px; border-radius: 50%; }
+.mg-lightbox-top button:hover, .mg-nav:hover { background: rgba(255, 255, 255, 0.22); }
+.mg-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; }
+.mg-nav.prev { left: 14px; }
+.mg-nav.next { right: 14px; }
+
+.mg-stage {
+  width: 100%;
+  max-width: 1100px;
+  height: min(78vh, 100%);
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 0;
+}
+.mg-stage .media-view { max-height: 100%; border-radius: 8px; }
+.mg-stage video.media-view { height: auto; max-height: 100%; }
+.mg-stage .media-view-link { max-width: 420px; }
+
+.mg-lightbox-caption { max-width: 760px; margin-top: 14px; text-align: center; color: #fff; }
+.mg-lightbox-caption p { margin: 0; font-size: 15px; line-height: 1.5; }
+.mg-lightbox-caption small { color: rgba(255, 255, 255, 0.55); font-size: 12px; }
+
+@media (max-width: 640px) {
+  .mg-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .mg-lightbox { padding: 56px 8px 16px; }
+  .mg-nav { top: auto; bottom: 16px; transform: none; width: 42px; height: 42px; }
+  .mg-lightbox-caption { margin-bottom: 56px; }
+}

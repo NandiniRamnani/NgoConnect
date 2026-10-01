@@ -35,7 +35,11 @@ const Login = () => {
       const response = await api.post('/accounts/login', formData);
       // Store _pass so Dashboard can make authenticated API calls
       login({ ...response.data, _pass: formData.password });
-      navigate('/dashboard');
+      // A page that sent the visitor here to log in (e.g. "Sponsor this meal") passes where to go
+      // next, so they carry on with what they were doing instead of landing on the dashboard.
+      const next = location.state?.redirectTo;
+      if (next?.pathname) navigate(next.pathname, { state: next.state });
+      else navigate('/dashboard');
     } catch (err) {
       const msg = err.response?.data?.message || err.response?.data || '';
       if (err.response?.status === 401) setError('Incorrect email or password.');

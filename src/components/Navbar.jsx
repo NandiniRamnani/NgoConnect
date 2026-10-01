@@ -29,6 +29,7 @@ export default function Navbar() {
     { to: '/ngos', label: 'NGOs' },
     { to: '/events', label: 'Events' },
     { to: '/needs', label: 'Needs' },
+    { to: '/food-slots', label: 'Food Slots' },
     { to: '/donate', label: 'Donate', accent: true },
   ];
 

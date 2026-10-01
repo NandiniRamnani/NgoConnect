@@ -7,8 +7,10 @@
 .admin-login-card label { display: grid; gap: 6px; color: #6b7280; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
 .admin-login-card input { background: #ffffff; border: 1px solid rgba(28, 92, 66, 0.2); border-radius: 8px; padding: 12px 14px; color: #111827; font-size: 14px; outline: none; }
 .admin-login-card input:focus { border-color: #1c5c42; box-shadow: 0 0 0 3px rgba(28, 92, 66, 0.15); }
-.admin-login-card button { width: 100%; padding: 13px; background: #1c5c42; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 8px; }
-.admin-login-card button:disabled { opacity: 0.6; cursor: wait; }
+/* `form >` so this only styles the Sign In button — a bare `.admin-login-card button`
+   also caught the password field's show/hide icon and stretched it into a green bar. */
+.admin-login-card form > button { width: 100%; padding: 13px; background: #1c5c42; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 8px; }
+.admin-login-card form > button:disabled { opacity: 0.6; cursor: wait; }
 .admin-error { background: rgba(163, 49, 42, 0.12); border: 1px solid rgba(163, 49, 42, 0.3); color: #a3312a; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px; }
 
 /* Admin Layout */

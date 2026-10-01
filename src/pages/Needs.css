@@ -156,6 +156,48 @@
 }
 .need-meta span { display: inline-flex; align-items: center; gap: 4px; }
 
+/* ── Urgent needs ───────────────────────────────────────── */
+.need-card.urgent {
+  border-color: rgba(163, 49, 42, 0.45);
+  border-left: 4px solid var(--error, #a3312a);
+}
+.urgent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  background: var(--error, #a3312a);
+  color: #fff;
+}
+.need-badges { gap: 0.5rem; flex-wrap: wrap; }
+.need-deadline { color: var(--error, #a3312a); font-weight: 600; }
+.filter-chip.chip-urgent { border-color: rgba(163, 49, 42, 0.45); color: var(--error, #a3312a); }
+.filter-chip.chip-urgent.active { background: var(--error, #a3312a); border-color: var(--error, #a3312a); color: #fff; }
+
+/* ── Link to the Food Slots page ────────────────────────── */
+.food-banner {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  background: rgba(168, 106, 29, 0.1);
+  border: 1px solid rgba(168, 106, 29, 0.3);
+  color: var(--text);
+  text-decoration: none;
+}
+.food-banner svg { color: var(--secondary); flex-shrink: 0; }
+.food-banner-cta { margin-left: auto; font-weight: 700; color: var(--secondary); white-space: nowrap; }
+@media (max-width: 640px) {
+  .food-banner { flex-wrap: wrap; }
+  .food-banner-cta { margin-left: 0; }
+}
+
 .btn-respond {
   width: 100%;
   padding: 0.75rem;

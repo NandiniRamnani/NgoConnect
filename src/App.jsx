@@ -10,6 +10,7 @@ import ResetPassword from './pages/ResetPassword';
 import NGOs from './pages/NGOs';
 import Events from './pages/Events';
 import Needs from './pages/Needs';
+import FoodSlots from './pages/FoodSlots';
 import Donate from './pages/Donate';
 import Wallet from './pages/Wallet';
 import NgoFinance from './pages/NgoFinance';
@@ -35,6 +36,7 @@ function App() {
               <Route path="/ngos/:id" element={<NGODetail />} />
               <Route path="/events" element={<Events />} />
               <Route path="/needs" element={<Needs />} />
+              <Route path="/food-slots" element={<FoodSlots />} />
               <Route path="/donate" element={<Donate />} />
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/ngo/finance" element={<NgoFinance />} />

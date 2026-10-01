@@ -2,12 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Building2, UserRound, CalendarDays, CheckCircle2, Users, Ticket, HeartHandshake,
-  XCircle, Clock, Upload, X,
+  XCircle, Clock, Upload, UtensilsCrossed, AlertTriangle, ImagePlus, Video,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import './Dashboard.css';
 import Avatar, { PRESET_NAMES } from '../components/Avatar';
+import MediaGallery from '../components/MediaGallery';
+import MediaUploadModal from '../components/MediaUploadModal';
+import NgoFoodSlots from '../components/NgoFoodSlots';
+import { toIsoDay, addDays } from '../utils/foodSlots';
+
+const EMPTY_NEED = { title: '', type: 'NEED', description: '', resourceDetails: '', deliveryAddress: '', urgent: false, deadline: '' };
 
 const Dashboard = () => {
   const { user, login } = useAuth();
@@ -16,7 +22,13 @@ const Dashboard = () => {
   const [showEventModal, setShowEventModal] = useState(false);
   const [showNeedModal, setShowNeedModal] = useState(false);
   const [eventForm, setEventForm] = useState({ title: '', eventDate: '', location: '', description: '', maxSpots: '', category: 'General' });
-  const [needForm, setNeedForm]   = useState({ title: '', type: 'NEED', description: '', resourceDetails: '', deliveryAddress: '' });
+  const [needForm, setNeedForm]   = useState(EMPTY_NEED);
+  const [myNeeds, setMyNeeds]     = useState([]);
+  const [foodSlots, setFoodSlots] = useState([]);
+  // null = the "post meals" form is closed; an object opens it with those days/meals pre-selected.
+  const [slotDraft, setSlotDraft] = useState(null);
+  // The NGO's own public record, for its saved food pricing (per-person meal costs + headcounts).
+  const [ngoProfile, setNgoProfile] = useState(null);
   const [events, setEvents]       = useState([]);
   const [enrollments, setEnrollments] = useState([]);
   const [donations, setDonations] = useState([]);
@@ -25,14 +37,7 @@ const Dashboard = () => {
   const [modalError, setModalError] = useState('');
   const [modalSuccess, setModalSuccess] = useState('');
   const [media, setMedia] = useState([]);
-  const [showPhotoModal, setShowPhotoModal] = useState(false);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const [photoFile, setPhotoFile] = useState(null);
-  const [photoCaption, setPhotoCaption] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
-  const [videoCaption, setVideoCaption] = useState('');
-  const [mediaLoading, setMediaLoading] = useState(false);
-  const [mediaError, setMediaError] = useState('');
+  const [uploadKind, setUploadKind] = useState(null); // null = closed, else 'photo' | 'video'
 
   /**
    * The avatar is held in local state, seeded from the logged-in user, so a change shows
@@ -53,9 +58,16 @@ const Dashboard = () => {
     if (user.role === 'NGO' && user.id) {
       api.get(`/ngos/${user.id}/events`).then(r => setEvents(r.data)).catch(() => {});
       api.get(`/ngos/${user.id}/media`).then(r => setMedia(r.data)).catch(() => {});
+      api.get(`/ngos/${user.id}/notifications`, { headers }).then(r => setMyNeeds(r.data)).catch(() => {});
+      api.get(`/ngos/${user.id}`).then(r => setNgoProfile(r.data)).catch(() => {});
+      // Yesterday onwards, so a slot from last night is still visible while the NGO reconciles it.
+      api.get('/food-slots', {
+        params: { ngoId: user.id, from: toIsoDay(addDays(new Date(), -1)), to: toIsoDay(addDays(new Date(), 60)) },
+      }).then(r => setFoodSlots(r.data)).catch(() => {});
     } else if (user.role === 'USER') {
       api.get('/events/my-enrollments', { headers }).then(r => setEnrollments(r.data)).catch(() => {});
       api.get('/donations', { headers }).then(r => setDonations(r.data)).catch(() => {});
+      api.get('/profile/media', { headers }).then(r => setMedia(r.data)).catch(() => {});
     }
   }, [user, navigate]);
 
@@ -64,6 +76,8 @@ const Dashboard = () => {
   const isNGO = user.role === 'NGO';
   const displayName = user.fullName || user.ngoName || user.email?.split('@')[0] || 'Welcome';
   const firstLetter = displayName[0]?.toUpperCase() || '?';
+  // NGOs and donors both have a media gallery; they differ only in where it lives on the API.
+  const mediaBase = isNGO ? `/ngos/${user.id}/media` : '/profile/media';
 
   /**
    * Every authenticated call in this file rebuilt these credentials by hand. One helper means the
@@ -175,40 +189,21 @@ const Dashboard = () => {
     }
   };
 
-  const handlePhotoUpload = async (e) => {
-    e.preventDefault();
-    if (!photoFile) return setMediaError('Please select a photo.');
-    setMediaLoading(true); setMediaError('');
-    const fd = new FormData();
-    fd.append('file', photoFile);
-    if (photoCaption) fd.append('caption', photoCaption);
-    const creds = btoa(user.email + ':' + (user._pass || ''));
-    try {
-      const res = await api.post(`/ngos/${user.id}/media/photo`, fd, { headers: { Authorization: 'Basic ' + creds, 'Content-Type': undefined } });
-      setMedia(prev => [res.data, ...prev]);
-      setShowPhotoModal(false); setPhotoFile(null); setPhotoCaption('');
-    } catch (err) { setMediaError(err.response?.data?.message || 'Upload failed.'); }
-    finally { setMediaLoading(false); }
-  };
+  // ── Needs ───────────────────────────────────────────────────────────────────
 
-  const handleVideoLink = async (e) => {
-    e.preventDefault();
-    if (!videoUrl.trim()) return setMediaError('Please enter a video URL.');
-    setMediaLoading(true); setMediaError('');
-    const creds = btoa(user.email + ':' + (user._pass || ''));
+  const handleCloseNeed = async (need) => {
+    if (!window.confirm(`Mark "${need.title}" as fulfilled? It will be removed from the public Needs page.`)) return;
     try {
-      const res = await api.post(`/ngos/${user.id}/media/video`, { videoUrl: videoUrl.trim(), caption: videoCaption }, { headers: { Authorization: 'Basic ' + creds } });
-      setMedia(prev => [res.data, ...prev]);
-      setShowVideoModal(false); setVideoUrl(''); setVideoCaption('');
-    } catch (err) { setMediaError(err.response?.data?.message || 'Failed to save video.'); }
-    finally { setMediaLoading(false); }
+      const res = await api.patch(`/ngos/${user.id}/notifications/${need.id}/close`, null, { headers: authHeader() });
+      setMyNeeds(prev => prev.map(n => (n.id === need.id ? res.data : n)));
+    } catch (err) { alert(err.response?.data?.message || 'Could not close this need.'); }
   };
 
   const handleDeleteMedia = async (item) => {
     if (!window.confirm('Delete this item?')) return;
     const creds = btoa(user.email + ':' + (user._pass || ''));
     try {
-      await api.delete(`/ngos/${user.id}/media/${item.id}`, { headers: { Authorization: 'Basic ' + creds } });
+      await api.delete(`${mediaBase}/${item.id}`, { headers: { Authorization: 'Basic ' + creds } });
       setMedia(prev => prev.filter(m => m.id !== item.id));
     } catch { alert('Failed to delete.'); }
   };
@@ -260,13 +255,16 @@ const Dashboard = () => {
         description: needForm.description,
         resourceDetails: needForm.resourceDetails,
         deliveryAddress: needForm.deliveryAddress,
+        urgent: needForm.urgent,
+        deadline: needForm.urgent && needForm.deadline ? new Date(needForm.deadline).toISOString() : null,
       };
       const creds = btoa(`${user.email}:${user._pass || ''}`);
-      await api.post(`/ngos/${user.id}/notifications`, payload, {
+      const res = await api.post(`/ngos/${user.id}/notifications`, payload, {
         headers: { Authorization: `Basic ${creds}` },
       });
-      setModalSuccess('Need posted successfully!');
-      setNeedForm({ title: '', type: 'NEED', description: '', resourceDetails: '', deliveryAddress: '' });
+      setMyNeeds(prev => [res.data, ...prev]);
+      setModalSuccess(needForm.urgent ? 'Urgent need posted — it now shows at the top of the Needs page.' : 'Need posted successfully!');
+      setNeedForm(EMPTY_NEED);
       setTimeout(() => { setShowNeedModal(false); setModalSuccess(''); }, 1500);
     } catch (err) {
       setModalError(err.response?.data?.message || 'Failed to post need.');
@@ -302,7 +300,11 @@ const Dashboard = () => {
         <nav className="dashboard-nav">
           <a href="#overview" className="active">Overview</a>
           {isNGO && <a href="#events">My Events</a>}
+          {isNGO && <a href="#needs">My Needs</a>}
+          {isNGO && <a href="#food-slots">Food Slots</a>}
+          {isNGO && <a href="#media">Media Gallery</a>}
           {!isNGO && <a href="#enrollments">My Events</a>}
+          {!isNGO && <a href="#media">My Photos &amp; Videos</a>}
           <Link to="/ngos">Browse NGOs</Link>
           <Link to="/donate">Donate</Link>
         </nav>
@@ -340,6 +342,13 @@ const Dashboard = () => {
                   <p className="stat-value">{events.reduce((s, e) => s + (e.enrolledCount || 0), 0)}</p>
                 </div>
               </div>
+              <div className="stat-card">
+                <div className="stat-icon"><UtensilsCrossed size={20} strokeWidth={1.8} /></div>
+                <div className="stat-info">
+                  <h3>Meals Needing Sponsor</h3>
+                  <p className="stat-value">{foodSlots.filter(s => s.status === 'OPEN').length}</p>
+                </div>
+              </div>
             </div>
 
             <div className="action-buttons">
@@ -348,6 +357,12 @@ const Dashboard = () => {
               </button>
               <button className="btn btn-secondary" onClick={() => { setModalError(''); setModalSuccess(''); setShowNeedModal(true); }}>
                 + Post Need
+              </button>
+              <button className="btn btn-urgent" onClick={() => { setModalError(''); setModalSuccess(''); setNeedForm({ ...EMPTY_NEED, urgent: true }); setShowNeedModal(true); }}>
+                <AlertTriangle size={15} /> Post Urgent Requirement
+              </button>
+              <button className="btn btn-secondary" onClick={() => setSlotDraft({})}>
+                + Post Food Slot
               </button>
             </div>
 
@@ -377,6 +392,42 @@ const Dashboard = () => {
                 </table>
               )}
             </div>
+
+            <div className="section-card" id="needs">
+              <h2>My Needs</h2>
+              {myNeeds.length === 0 ? (
+                <div className="empty-state">
+                  <AlertTriangle size={32} strokeWidth={1.5} />
+                  <p>No needs posted yet. Use <strong>Post Need</strong>, or <strong>Post Urgent Requirement</strong> for something you need today.</p>
+                </div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr><th>Title</th><th>Type</th><th>Posted</th><th>Status</th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    {myNeeds.map(n => (
+                      <tr key={n.id}>
+                        <td>
+                          {n.urgent && <span className="urgent-pill"><AlertTriangle size={11} /> Urgent</span>} {n.title}
+                        </td>
+                        <td>{n.type === 'VOLUNTEERING' ? 'Volunteers' : 'Goods'}</td>
+                        <td>{formatDate(n.createdAt)}</td>
+                        <td><span className={`status-badge ${n.active ? 'upcoming' : 'completed'}`}>{n.active ? 'Open' : 'Fulfilled'}</span></td>
+                        <td>{n.active && <button className="table-action" onClick={() => handleCloseNeed(n)}>Mark fulfilled</button>}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            <NgoFoodSlots
+              user={user} authHeader={authHeader}
+              slots={foodSlots} setSlots={setFoodSlots}
+              ngoProfile={ngoProfile} setNgoProfile={setNgoProfile}
+              draft={slotDraft} setDraft={setSlotDraft}
+            />
           </div>
 
         ) : (
@@ -467,6 +518,30 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+
+        {/* ── Photos & videos (NGOs and users) ───────────────────────── */}
+        <div className="section-card media-section" id="media">
+          <div className="section-card-head media-section-head">
+            <div>
+              <h2>{isNGO ? 'Media Gallery' : 'My Photos & Videos'}</h2>
+              <p className="section-hint">
+                {isNGO
+                  ? 'Show donors your work — photos and videos appear on your public NGO page.'
+                  : 'Share moments from the events and causes you have been part of.'}
+              </p>
+            </div>
+            <div className="media-section-actions">
+              <button className="btn btn-primary btn-sm" onClick={() => setUploadKind('photo')}><ImagePlus size={15} /> Add photo</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => setUploadKind('video')}><Video size={15} /> Add video</button>
+            </div>
+          </div>
+          <MediaGallery
+            items={media}
+            onDelete={handleDeleteMedia}
+            emptyText={isNGO ? 'No photos or videos yet. Posts from your kitchen, classrooms and events help donors trust you.' : 'Nothing posted yet.'}
+            emptyAction={<button className="btn btn-primary btn-sm" onClick={() => setUploadKind('photo')}><ImagePlus size={15} /> Post your first photo</button>}
+          />
+        </div>
       </div>
 
       {/* ── Post Event Modal ──────────────────────────────────────────────────── */}
@@ -522,10 +597,25 @@ const Dashboard = () => {
         <div className="modal-overlay animate-fade-in" onClick={() => setShowNeedModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setShowNeedModal(false)}>×</button>
-            <h2>Post a Need</h2>
+            <h2>{needForm.urgent ? 'Post an Urgent Requirement' : 'Post a Need'}</h2>
             {modalError   && <div className="alert alert-error">{modalError}</div>}
             {modalSuccess && <div className="alert alert-success">{modalSuccess}</div>}
             <form className="modal-form" onSubmit={handleNeedSubmit}>
+              <label className={`urgent-toggle ${needForm.urgent ? 'on' : ''}`}>
+                <input type="checkbox" checked={needForm.urgent}
+                  onChange={e => setNeedForm({ ...needForm, urgent: e.target.checked })} />
+                <span>
+                  <strong><AlertTriangle size={14} /> This is urgent</strong>
+                  <small>Shown first on the Needs page with a red "Urgent" badge. Use it for things needed within a day or two.</small>
+                </span>
+              </label>
+              {needForm.urgent && (
+                <div className="form-group">
+                  <label className="form-label">Needed by (optional)</label>
+                  <input className="form-input" type="datetime-local"
+                    value={needForm.deadline} onChange={e => setNeedForm({ ...needForm, deadline: e.target.value })} />
+                </div>
+              )}
               <div className="form-group">
                 <label className="form-label">Need Title *</label>
                 <input className="form-input" type="text" placeholder="e.g. Blankets for winter"
@@ -556,46 +646,13 @@ const Dashboard = () => {
                 </div>
               )}
               <button type="submit" className="btn btn-primary btn-full" disabled={submitting}>
-                {submitting ? <span className="spinner" /> : '+ Post Need'}
+                {submitting ? <span className="spinner" /> : needForm.urgent ? 'Post Urgent Requirement' : '+ Post Need'}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* ── Media Gallery (NGO only) ──────────────────────────────── */}
-      {isNGO && (
-        <div className="section-card" style={{ marginTop: 24 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h2 style={{ margin: 0 }}>Media Gallery</h2>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button className="btn btn-primary" onClick={() => { setMediaError(''); setShowPhotoModal(true); }}>+ Upload Photo</button>
-              <button className="btn btn-secondary" onClick={() => { setMediaError(''); setShowVideoModal(true); }}>+ Add Video</button>
-            </div>
-          </div>
-          {media.length === 0 ? (
-            <div className="empty-state"><span style={{ fontSize: 36 }}>🖼️</span><p>No media posted yet. Upload photos or add video links to showcase your work.</p></div>
-          ) : (
-            <div className="media-gallery-grid">
-              {media.map(item => (
-                <div key={item.id} className="media-gallery-card">
-                  {item.mediaType === 'IMAGE'
-                    ? <img src={item.mediaUrl} alt={item.caption || 'NGO photo'} style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 8 }} />
-                    : <div style={{ height: 160, background: 'rgba(28, 92, 66,0.15)', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 36 }}>🎬</span>
-                        <a href={item.mediaUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', fontSize: 13 }}>Watch Video ↗</a>
-                      </div>
-                  }
-                  {item.caption && <p style={{ fontSize: 12, color: 'var(--text2, #b0b0cc)', marginTop: 6 }}>{item.caption}</p>}
-                  <button onClick={() => handleDeleteMedia(item)} style={{ marginTop: 6, background: 'none', border: '1px solid var(--error)', color: 'var(--error)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}><X size={12} /> Remove</button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Photo Upload Modal */}
       {/* Profile picture picker: upload a real image, choose a bundled illustration, or clear it. */}
       {showAvatarPicker && (
         <div className="modal-overlay" onClick={() => setShowAvatarPicker(false)}>
@@ -645,55 +702,14 @@ const Dashboard = () => {
         </div>
       )}
 
-      {showPhotoModal && (
-        <div className="modal-backdrop" onClick={e => { if (e.target === e.currentTarget) setShowPhotoModal(false); }}>
-          <div className="modal-card">
-            <div className="modal-card-header">
-              <h3>Upload Photo</h3>
-              <button className="modal-close-btn" onClick={() => setShowPhotoModal(false)}>×</button>
-            </div>
-            {mediaError && <div className="alert alert-error">{mediaError}</div>}
-            <form onSubmit={handlePhotoUpload}>
-              <div className="form-group">
-                <label className="form-label">Select Image *</label>
-                <input className="form-input" type="file" accept="image/*" onChange={e => setPhotoFile(e.target.files[0] || null)} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Caption (optional)</label>
-                <input className="form-input" type="text" placeholder="Describe this photo..." value={photoCaption} onChange={e => setPhotoCaption(e.target.value)} />
-              </div>
-              <button type="submit" className="btn btn-primary btn-full" disabled={mediaLoading}>
-                {mediaLoading ? <span className="spinner" /> : '+ Upload Photo'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Video Link Modal */}
-      {showVideoModal && (
-        <div className="modal-backdrop" onClick={e => { if (e.target === e.currentTarget) setShowVideoModal(false); }}>
-          <div className="modal-card">
-            <div className="modal-card-header">
-              <h3>Add Video Link</h3>
-              <button className="modal-close-btn" onClick={() => setShowVideoModal(false)}>×</button>
-            </div>
-            {mediaError && <div className="alert alert-error">{mediaError}</div>}
-            <form onSubmit={handleVideoLink}>
-              <div className="form-group">
-                <label className="form-label">Video URL *</label>
-                <input className="form-input" type="url" placeholder="https://youtube.com/watch?v=..." value={videoUrl} onChange={e => setVideoUrl(e.target.value)} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Caption (optional)</label>
-                <input className="form-input" type="text" placeholder="Describe this video..." value={videoCaption} onChange={e => setVideoCaption(e.target.value)} />
-              </div>
-              <button type="submit" className="btn btn-primary btn-full" disabled={mediaLoading}>
-                {mediaLoading ? <span className="spinner" /> : '+ Add Video'}
-              </button>
-            </form>
-          </div>
-        </div>
+      {uploadKind && (
+        <MediaUploadModal
+          initialKind={uploadKind}
+          mediaBase={mediaBase}
+          authHeader={authHeader}
+          onClose={() => setUploadKind(null)}
+          onUploaded={item => setMedia(prev => [item, ...prev])}
+        />
       )}
     </div>
   );

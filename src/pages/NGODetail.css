@@ -20,10 +20,45 @@
 .detail-tabs button { padding: 12px 20px; background: none; border: none; border-bottom: 2px solid transparent; color: #6b7280; font-size: 14px; font-weight: 600; cursor: pointer; }
 .detail-tabs button.active { color: #1c5c42; border-bottom-color: #1c5c42; }
 
-.media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-.media-card { background: #ffffff; border: 1px solid rgba(28, 92, 66,0.15); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.media-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
-.media-caption { padding: 10px 14px; font-size: 13px; color: #6b7280; margin: 0; }
+.detail-tabs { overflow-x: auto; }
+.detail-tabs button { white-space: nowrap; }
+
+/* Food slots tab */
+.slot-day-group { margin-bottom: 20px; }
+.slot-day-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-size: 16px; margin: 0 0 10px; }
+.slot-day-heading span { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #fff; background: #1c5c42; padding: 2px 8px; border-radius: 999px; }
+.slot-day-heading small { margin-left: auto; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: #a86a1d; }
+.slot-row-meal { display: inline-flex; align-items: center; gap: 6px; }
+.slot-list { display: grid; gap: 10px; }
+.food-costs-box {
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  background: rgba(28, 92, 66, 0.06);
+  font-size: 14px;
+}
+.food-costs-box p { margin: 2px 0; }
+.slot-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid rgba(28, 92, 66, 0.15);
+  border-left: 4px solid #1c5c42;
+  border-radius: 10px;
+}
+.slot-row.open { border-left-color: #a86a1d; }
+.slot-row p { margin: 4px 0 0; font-size: 13px; color: #6b7280; }
+.slot-sponsor {
+  flex-shrink: 0;
+  padding: 8px 14px; border: none; border-radius: 8px;
+  background: #1c5c42; color: #fff; font-weight: 600; cursor: pointer;
+}
+.slot-sponsor:hover { background: #133f2d; }
+.slot-covered { flex-shrink: 0; color: #1c5c42; font-weight: 600; font-size: 13px; }
+.slot-cost { flex-shrink: 0; color: #a86a1d; font-weight: 700; }
+@media (max-width: 560px) {
+  .slot-row { flex-direction: column; align-items: flex-start; }
+}
 
 .video-list { display: grid; gap: 10px; margin-top: 16px; }
 .video-card { display: flex; align-items: center; gap: 16px; background: #ffffff; border: 1px solid rgba(28, 92, 66,0.15); border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
@@ -44,5 +79,4 @@
 @media (max-width: 600px) {
   .ngo-detail-hero { flex-direction: column; text-align: center; }
   .ngo-meta-row { justify-content: center; }
-  .media-grid { grid-template-columns: 1fr 1fr; }
 }

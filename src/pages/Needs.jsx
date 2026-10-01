@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Package, Users, MapPin, Clock, Building2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Package, Users, MapPin, Clock, Building2, AlertTriangle, UtensilsCrossed } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
+import { toIsoDay, addDays } from '../utils/foodSlots';
 import './Needs.css';
 
-const TYPES = ['All', 'NEED', 'VOLUNTEERING'];
-const TYPE_LABEL = { NEED: 'Goods / Materials', VOLUNTEERING: 'Volunteers' };
+// URGENT is a view filter, not a backend type: it shows urgent posts of either type.
+const TYPES = ['All', 'URGENT', 'NEED', 'VOLUNTEERING'];
+const TYPE_LABEL = { URGENT: 'Urgent', NEED: 'Goods / Materials', VOLUNTEERING: 'Volunteers' };
 const TYPE_ICON = { NEED: Package, VOLUNTEERING: Users };
 
 export default function Needs() {
@@ -14,18 +16,27 @@ export default function Needs() {
   const [needs, setNeeds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [openMeals, setOpenMeals] = useState(0);
   const authContext = useAuth();
   const user = authContext?.user;
   const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true); setError('');
-    const params = activeType !== 'All' ? { type: activeType } : undefined;
+    const params = activeType === 'NEED' || activeType === 'VOLUNTEERING' ? { type: activeType } : undefined;
     api.get('/ngos/notifications', { params })
-      .then(response => setNeeds(response.data))
+      .then(response => setNeeds(activeType === 'URGENT' ? response.data.filter(n => n.urgent) : response.data))
       .catch(() => setError('Needs could not be loaded right now.'))
       .finally(() => setLoading(false));
   }, [activeType]);
+
+  // Food slots live on their own page; this just points people there when a meal is at risk soon.
+  useEffect(() => {
+    const today = new Date();
+    api.get('/food-slots', { params: { from: toIsoDay(today), to: toIsoDay(addDays(today, 1)), status: 'OPEN' } })
+      .then(r => setOpenMeals(r.data.length))
+      .catch(() => setOpenMeals(0));
+  }, []);
 
   const handleRespond = (need) => {
     if (need.type === 'NEED') {
@@ -46,7 +57,7 @@ export default function Needs() {
           {TYPES.map(type => (
             <button
               key={type}
-              className={`filter-chip ${activeType === type ? 'active' : ''}`}
+              className={`filter-chip ${activeType === type ? 'active' : ''} ${type === 'URGENT' ? 'chip-urgent' : ''}`}
               onClick={() => setActiveType(type)}
             >
               {type === 'All' ? 'All' : TYPE_LABEL[type]}
@@ -55,17 +66,30 @@ export default function Needs() {
         </div>
       </div>
 
+      {openMeals > 0 && (
+        <Link to="/food-slots" className="food-banner">
+          <UtensilsCrossed size={20} />
+          <span>
+            <strong>{openMeals} meal{openMeals === 1 ? '' : 's'}</strong> for children, elders or blind people have no sponsor for today or tomorrow.
+          </span>
+          <span className="food-banner-cta">Sponsor a meal →</span>
+        </Link>
+      )}
+
       {loading && <p className="no-results">Loading needs...</p>}
       {error && <p className="no-results">{error}</p>}
-      {!loading && !error && needs.length === 0 && <p className="no-results">No open needs right now.</p>}
+      {!loading && !error && needs.length === 0 && (
+        <p className="no-results">{activeType === 'URGENT' ? 'No urgent needs right now.' : 'No open needs right now.'}</p>
+      )}
 
       <div className="masonry-grid">
         {!loading && !error && needs.map(need => {
           const TypeIcon = TYPE_ICON[need.type] || Package;
           return (
-          <div key={need.id} className="need-card">
+          <div key={need.id} className={`need-card ${need.urgent ? 'urgent' : ''}`}>
             <div className="need-badges">
               <span className="type-badge" data-type={need.type}>{TYPE_LABEL[need.type] || need.type}</span>
+              {need.urgent && <span className="urgent-badge"><AlertTriangle size={12} /> Urgent</span>}
               {need.type === 'VOLUNTEERING' && need.requiredVolunteers && (
                 <span className="urgency-badge">{need.requiredVolunteers} needed</span>
               )}
@@ -82,6 +106,9 @@ export default function Needs() {
               <p className="need-desc"><strong><Package size={13} className="inline-icon" /> Send items to:</strong> {need.deliveryAddress}</p>
             )}
             {need.location && <p className="need-desc"><MapPin size={13} className="inline-icon" /> {need.location}</p>}
+            {need.deadline && (
+              <p className="need-desc need-deadline"><Clock size={13} className="inline-icon" /> Needed by {new Date(need.deadline).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</p>
+            )}
 
             <div className="need-footer">
               <div className="need-meta">

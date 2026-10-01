@@ -1,0 +1,124 @@
+.mu-backdrop {
+  position: fixed; inset: 0;
+  z-index: 1500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  background: rgba(20, 18, 14, 0.55);
+  backdrop-filter: blur(4px);
+  animation: muFade 0.2s ease;
+}
+@keyframes muFade { from { opacity: 0; } to { opacity: 1; } }
+
+.mu-card {
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 20px 22px 22px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  animation: muRise 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes muRise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+.mu-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.mu-head h3 { margin: 0; font-size: 1.25rem; }
+.mu-close {
+  display: grid; place-items: center;
+  width: 34px; height: 34px;
+  border: none; border-radius: 50%;
+  background: var(--surface2); color: var(--text2);
+  cursor: pointer;
+}
+.mu-close:hover { background: var(--surface3); color: var(--text); }
+
+.mu-kind { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface2); margin-bottom: 14px; }
+.mu-kind button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px;
+  border: none; border-radius: 9px;
+  background: transparent;
+  color: var(--text2);
+  font-weight: 600; font-size: 14px; font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.mu-kind button.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); }
+
+.mu-mode { display: flex; gap: 8px; margin-bottom: 12px; }
+.mu-mode label {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  font-size: 13px; font-weight: 600; color: var(--text2);
+  cursor: pointer;
+}
+.mu-mode label.active { border-color: var(--primary); background: rgba(28, 92, 66, 0.07); color: var(--primary); }
+.mu-mode input { position: absolute; opacity: 0; pointer-events: none; }
+
+.mu-drop {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  min-height: 210px;
+  padding: 24px;
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  background: var(--surface2);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.mu-drop:hover, .mu-drop.over { border-color: var(--primary); background: rgba(28, 92, 66, 0.06); }
+.mu-drop.over { transform: scale(1.01); }
+.mu-drop-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); margin-bottom: 4px; }
+.mu-drop strong { font-size: 14px; }
+.mu-drop u { color: var(--primary); text-underline-offset: 3px; }
+.mu-drop small { font-size: 12px; color: var(--text3); }
+
+.mu-preview { border-radius: 14px; overflow: hidden; background: #111; }
+.mu-preview img, .mu-preview video { display: block; width: 100%; max-height: 300px; object-fit: contain; background: #111; }
+.mu-preview-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  background: var(--surface2);
+  font-size: 13px;
+}
+.mu-preview-bar span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.mu-preview-bar small { color: var(--text3); flex-shrink: 0; }
+.mu-change { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; color: var(--primary); font-weight: 600; cursor: pointer; }
+.mu-change.disabled { opacity: 0.5; pointer-events: none; }
+
+.mu-link { display: flex; flex-direction: column; gap: 10px; }
+.mu-yt { position: relative; }
+.mu-yt img { aspect-ratio: 16 / 9; object-fit: cover; max-height: none; }
+.mu-yt span { display: block; padding: 8px 12px; background: var(--surface2); font-size: 12.5px; color: var(--text2); }
+.mu-hint { font-size: 12px; color: var(--text3); line-height: 1.5; }
+
+.mu-caption { position: relative; margin-top: 14px; }
+.mu-caption label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.mu-caption label span { font-weight: 400; color: var(--text3); }
+.mu-caption textarea { resize: vertical; min-height: 60px; }
+.mu-caption small { position: absolute; right: 10px; bottom: 8px; font-size: 11px; color: var(--text3); pointer-events: none; }
+
+.mu-progress {
+  position: relative;
+  height: 28px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: var(--surface2);
+  overflow: hidden;
+}
+.mu-progress div { height: 100%; background: var(--primary); opacity: 0.85; transition: width 0.2s ease; }
+.mu-progress span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--text); text-shadow: 0 0 6px rgba(255, 255, 255, 0.9); }
+
+.mu-card .alert { margin-top: 12px; margin-bottom: 0; }
+.mu-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.mu-actions .btn { min-width: 110px; justify-content: center; }
+
+@media (max-width: 520px) {
+  .mu-backdrop { align-items: flex-end; padding: 0; }
+  .mu-card { max-width: none; border-radius: 18px 18px 0 0; max-height: 92vh; }
+  .mu-drop { min-height: 170px; }
+  .mu-actions .btn { flex: 1; }
+}

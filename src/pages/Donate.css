@@ -183,8 +183,14 @@
   background: rgba(28, 92, 66, 0.08);
 }
 
+/* Reset NGOs.css's grey 60px .ngo-emoji circle, which otherwise leaks in here. */
 .ngo-grid .ngo-emoji {
-  font-size: 3rem;
+  display: flex;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  background: none;
+  border: none;
   margin-bottom: 1rem;
 }
 

@@ -178,14 +178,50 @@ export default function AdminDashboard() {
 
   const viewDoc = async (doc) => {
     setDocLoading(true);
+
+    // Open the tab NOW, synchronously inside the click, and fill it in once the file arrives.
+    // A window.open() made after an await is no longer tied to the user's click, so browsers
+    // treat it as an unrequested popup and block it — which is why nothing appeared before.
+    const tab = window.open('', '_blank');
+    if (tab) tab.document.write('<p style="font-family:sans-serif;padding:24px">Loading document…</p>');
+
     try {
-      const res = await api.get(`/admin/ngos/${sel.id}/document-url`, {
-        params: { cloudinaryId: doc.cloudinaryId, resourceType: doc.resourceType },
-        headers: headers()
+      // The endpoint needs the admin's auth header, which a plain link cannot send, so the file is
+      // fetched here as a blob. responseType 'blob' keeps the bytes intact; as text they would be
+      // corrupted and the file would refuse to open.
+      const res = await api.get(`/admin/ngos/${sel.id}/document`, {
+        params: { cloudinaryId: doc.cloudinaryId },
+        headers: headers(),
+        responseType: 'blob',
       });
-      window.open(res.data.url, '_blank');
-    } catch { alert('Could not generate document URL. Try again.'); }
-    finally { setDocLoading(false); }
+
+      // Re-wrap with the server's Content-Type so the browser knows it is a PDF or image and
+      // shows it with its built-in viewer instead of offering an unnamed download.
+      const type = res.headers['content-type'] || res.data.type || 'application/pdf';
+      const url = URL.createObjectURL(new Blob([res.data], { type }));
+
+      if (tab) tab.location.href = url;
+      else window.location.assign(url); // popup blocked entirely: open in this tab instead
+
+      // Give the new tab time to load the blob before releasing it.
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (err) {
+      if (tab) tab.close();
+      // Say WHY. A blob error body has to be read as text before its message is usable.
+      let detail = '';
+      if (err.response) {
+        detail = `(HTTP ${err.response.status})`;
+        try {
+          const text = await err.response.data?.text?.();
+          const msg = text && JSON.parse(text).message;
+          if (msg) detail = `${detail}: ${msg}`;
+        } catch { /* body was not JSON */ }
+        if (err.response.status === 404) detail += ' — is the backend running the latest code? Restart it.';
+      } else {
+        detail = '— the backend is not reachable. Start it with run-backend.bat.';
+      }
+      alert(`Could not load the document ${detail}`);
+    } finally { setDocLoading(false); }
   };
 
   const review = async (decision) => {
@@ -310,11 +346,12 @@ export default function AdminDashboard() {
             {!loading && events.length === 0 && <p className="admin-empty">No events found.</p>}
             {!loading && events.length > 0 && (
               <table className="admin-table">
-                <thead><tr><th>Title</th><th>NGO</th><th>Date</th><th>Enrolled</th><th>Active</th><th></th></tr></thead>
+                <thead><tr><th>Title</th><th>NGO</th><th>NGO</th><th>Date</th><th>Enrolled</th><th>Active</th><th></th></tr></thead>
                 <tbody>
                   {events.map(ev => (
                     <tr key={ev.id}>
                       <td>{ev.title}</td>
+                      <td>{ev.ngoName}</td>
                       <td>{ev.ngoName}</td>
                       <td>{fmtDate(ev.eventDate)}</td>
                       <td>{ev.enrolledCount ?? 0} / {ev.maxSpots}</td>

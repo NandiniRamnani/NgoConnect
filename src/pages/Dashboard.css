@@ -449,10 +449,6 @@
   }
 }
 
-/* Media Gallery Grid */
-.media-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-.media-gallery-card { background: var(--bg-card, #f3f4f6); border: 1px solid var(--border-color, rgba(28, 92, 66, 0.2)); border-radius: 10px; padding: 12px; }
-
 /* ── 80G receipt download ──────────────────────────────────────────────────── */
 .receipt-btn {
   background: rgba(28, 92, 66, 0.12);
@@ -542,3 +538,73 @@
 .avatar-preset:hover { transform: scale(1.09); }
 .avatar-preset.selected { border-color: #1c5c42; }
 .avatar-preset:disabled { opacity: 0.5; cursor: wait; }
+
+/* ── Urgent needs ──────────────────────────────────────────────────────────── */
+.btn-urgent { background: var(--error, #a3312a); color: #fff; display: inline-flex; align-items: center; gap: 6px; }
+.btn-urgent:hover { background: #7f2620; }
+
+.urgent-pill {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 2px 7px; border-radius: 999px;
+  background: var(--error, #a3312a); color: #fff;
+  vertical-align: middle;
+}
+
+.urgent-toggle {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px; margin-bottom: 1rem;
+  border: 1px solid var(--border-light); border-radius: 10px;
+  cursor: pointer;
+}
+.urgent-toggle.on { border-color: var(--error, #a3312a); background: rgba(163, 49, 42, 0.06); }
+.urgent-toggle input { margin-top: 3px; }
+.urgent-toggle strong { display: inline-flex; align-items: center; gap: 4px; color: var(--error, #a3312a); }
+.urgent-toggle small { display: block; font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+/* ── Tables: row actions ───────────────────────────────────────────────────── */
+.table-actions { white-space: nowrap; }
+.table-action {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--primary);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 6px;
+}
+.table-action:hover { background: rgba(28, 92, 66, 0.08); }
+.table-action.danger { border-color: rgba(163, 49, 42, 0.4); color: var(--error, #a3312a); }
+.table-action.danger:hover { background: rgba(163, 49, 42, 0.08); }
+
+/* ── Food slots ────────────────────────────────────────────────────────────── */
+.section-card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.section-link { font-size: 13px; color: var(--primary); font-weight: 600; }
+.section-hint { font-size: 13px; color: var(--text2); margin: 0 0 1rem; line-height: 1.5; }
+.form-hint { display: block; font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+/* ── Photos & videos section ───────────────────────────────────────────────── */
+.dashboard-main .media-section { margin-top: 24px; }
+.media-section-head { align-items: flex-start; flex-wrap: wrap; margin-bottom: 16px; }
+.media-section-head h2 { border-bottom: none; padding-bottom: 0; margin-bottom: 4px; }
+.media-section-head .section-hint { margin: 0; }
+.media-section-actions { display: flex; gap: 8px; }
+.media-section-actions .btn, .mg-empty .btn { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Long forms (posting meals) must scroll inside the modal instead of running off-screen. */
+.dashboard-container .modal-overlay { padding: 16px; }
+.dashboard-container .modal-content { max-height: calc(100vh - 32px); overflow-y: auto; }
+
+/* The profile-picture picker is a .modal-card inside .modal-overlay; it had no card styling. */
+.dashboard-container .modal-card {
+  width: 100%;
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.18);
+}
+.dashboard-container .modal-card h3 { margin: 0; }
+.dashboard-container .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.dashboard-container .modal-actions .btn-secondary { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-family: inherit; }

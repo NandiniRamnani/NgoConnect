@@ -1,28 +1,41 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import './NGODetail.css';
 import Avatar from '../components/Avatar';
+import MediaGallery from '../components/MediaGallery';
+import MealIcon from '../components/MealIcon';
+import { useAuth } from '../context/AuthContext';
+import {
+  MEAL_TYPES, MEAL_LABEL, GROUP_LABEL, toIsoDay, addDays, dayLabel, longDayLabel, formatRupees, costPerPerson, sponsorSlot,
+} from '../utils/foodSlots';
 
 export default function NGODetail() {
   const { id } = useParams();
   const [ngo, setNgo] = useState(null);
   const [media, setMedia] = useState([]);
   const [events, setEvents] = useState([]);
+  const [foodSlots, setFoodSlots] = useState([]);
   const [tab, setTab] = useState('media');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { user } = useAuth() || {};
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
+    const today = new Date();
     Promise.all([
       api.get(`/ngos/${id}`),
       api.get(`/ngos/${id}/media`),
-      api.get(`/ngos/${id}/events`).catch(() => ({ data: [] }))
-    ]).then(([ngoRes, mediaRes, eventsRes]) => {
+      api.get(`/ngos/${id}/events`).catch(() => ({ data: [] })),
+      api.get('/food-slots', { params: { ngoId: id, from: toIsoDay(today), to: toIsoDay(addDays(today, 13)) } })
+        .catch(() => ({ data: [] })),
+    ]).then(([ngoRes, mediaRes, eventsRes, slotsRes]) => {
       setNgo(ngoRes.data);
       setMedia(mediaRes.data);
       setEvents(eventsRes.data);
+      setFoodSlots(slotsRes.data);
     }).catch(() => setError('NGO not found.'))
     .finally(() => setLoading(false));
   }, [id]);
@@ -30,8 +43,6 @@ export default function NGODetail() {
   if (loading) return <div className="ngo-detail"><p className="ngo-loading">Loading...</p></div>;
   if (error || !ngo) return <div className="ngo-detail"><p className="ngo-error">{error || 'NGO not found.'}</p><Link to="/ngos" className="back-link">&larr; Back to NGOs</Link></div>;
 
-  const images = media.filter(m => m.mediaType === 'IMAGE');
-  const videos = media.filter(m => m.mediaType === 'VIDEO');
 
   return (
     <div className="ngo-detail">
@@ -60,35 +71,69 @@ export default function NGODetail() {
       <div className="detail-tabs">
         <button className={tab === 'media' ? 'active' : ''} onClick={() => setTab('media')}>Photos &amp; Videos ({media.length})</button>
         <button className={tab === 'events' ? 'active' : ''} onClick={() => setTab('events')}>Events ({events.length})</button>
+        <button className={tab === 'food' ? 'active' : ''} onClick={() => setTab('food')}>
+          Food Slots ({foodSlots.filter(s => s.status === 'OPEN').length} open)
+        </button>
       </div>
 
-      {tab === 'media' && (
+      {tab === 'food' && (
         <div>
-          {media.length === 0 && <p className="ngo-empty">No media posted yet.</p>}
-          {images.length > 0 && (
-            <div className="media-grid">
-              {images.map(m => (
-                <div key={m.id} className="media-card">
-                  <img src={m.mediaUrl} alt={m.caption || 'NGO photo'} loading="lazy" />
-                  {m.caption && <p className="media-caption">{m.caption}</p>}
-                </div>
-              ))}
+          {/* The NGO's own numbers, so a donor can see how each slot's price is made up. */}
+          {(Object.keys(ngo.beneficiaryCounts || {}).length > 0 || MEAL_TYPES.some(m => ngo.mealCostPerPerson?.[m] != null)) && (
+            <div className="food-costs-box">
+              {Object.keys(ngo.beneficiaryCounts || {}).length > 0 && (
+                <p>
+                  <strong>We feed:</strong>{' '}
+                  {Object.entries(ngo.beneficiaryCounts).map(([g, n]) => `${n} ${GROUP_LABEL[g]?.toLowerCase() || g}`).join(' · ')}
+                </p>
+              )}
+              {MEAL_TYPES.some(m => ngo.mealCostPerPerson?.[m] != null) && (
+                <p>
+                  <strong>Cost per person:</strong>{' '}
+                  {MEAL_TYPES.filter(m => ngo.mealCostPerPerson?.[m] != null)
+                    .map(m => `${MEAL_LABEL[m]} ${formatRupees(ngo.mealCostPerPerson[m])}`).join(' · ')}
+                  {costPerPerson(ngo, 'FULL_DAY') != null && <> · <strong>Whole day {formatRupees(costPerPerson(ngo, 'FULL_DAY'))}</strong></>}
+                </p>
+              )}
             </div>
           )}
-          {videos.length > 0 && (
-            <div className="video-list">
-              {videos.map(m => (
-                <div key={m.id} className="video-card">
-                  <span className="video-icon">&#127916;</span>
-                  <div>
-                    <p>{m.caption || 'Video'}</p>
-                    <a href={m.mediaUrl} target="_blank" rel="noreferrer">Watch Video &#8599;</a>
-                  </div>
+          {foodSlots.length === 0 && <p className="ngo-empty">No food slots posted for the next two weeks.</p>}
+          {[...new Set(foodSlots.map(s => s.date))].map(date => (
+          <div key={date} className="slot-day-group">
+          <h4 className="slot-day-heading">
+            <span>{dayLabel(date)}</span> {longDayLabel(date)}
+            <small>{foodSlots.filter(s => s.date === date && s.status === 'OPEN').length} need a sponsor</small>
+          </h4>
+          <div className="slot-list">
+            {foodSlots.filter(s => s.date === date).map(s => (
+              <div key={s.id} className={`slot-row ${s.status === 'OPEN' ? 'open' : ''}`}>
+                <div>
+                  <strong className="slot-row-meal"><MealIcon meal={s.mealType} size={15} /> {MEAL_LABEL[s.mealType]}</strong>
+                  <p>
+                    {s.peopleCount} {GROUP_LABEL[s.beneficiaryGroup].toLowerCase()}
+                    {s.costPerPerson != null ? ` · ${formatRupees(s.costPerPerson)} per person` : ''}
+                    {s.menu ? ` · ${s.menu}` : ''}
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
+                {s.status === 'OPEN' ? (
+                  user?.role === 'NGO'
+                    ? <span className="slot-cost">{formatRupees(s.amount)}</span>
+                    : <button className="slot-sponsor" onClick={() => sponsorSlot(navigate, user, s)}>
+                        Sponsor · {formatRupees(s.amount)}
+                      </button>
+                ) : (
+                  <span className="slot-covered">✓ {s.sponsorName ? `Sponsored by ${s.sponsorName}` : 'Covered'}</span>
+                )}
+              </div>
+            ))}
+          </div>
+          </div>
+          ))}
         </div>
+      )}
+
+      {tab === 'media' && (
+        <MediaGallery items={media} emptyText={`${ngo.ngoName} hasn't posted any photos or videos yet.`} />
       )}
 
       {tab === 'events' && (
