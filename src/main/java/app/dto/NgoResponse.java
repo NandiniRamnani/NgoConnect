@@ -1,13 +1,20 @@
 package app.dto;
 
+import app.enums.BeneficiaryGroup;
+import app.enums.MealType;
 import app.enums.VerificationStatus;
 import app.model.Ngo;
+import java.math.BigDecimal;
+import java.util.Map;
 
 /** Public-safe NGO response — no sensitive documents or PAN. */
 public class NgoResponse {
     private final String id, ngoName, email, ngoType, description, location, address,
             contactPhone, uniqueNgoId, websiteUrl, instagramUrl, logoUrl;
     private final VerificationStatus verificationStatus;
+    /** Public on purpose: a donor sees what one meal costs per person and how many people it feeds. */
+    private final Map<MealType, BigDecimal> mealCostPerPerson;
+    private final Map<BeneficiaryGroup, Integer> beneficiaryCounts;
 
     public NgoResponse(Ngo ngo) {
         id = ngo.getId(); ngoName = ngo.getNgoName(); email = ngo.getEmail();
@@ -16,7 +23,12 @@ public class NgoResponse {
         uniqueNgoId = ngo.getUniqueNgoId(); verificationStatus = ngo.getVerificationStatus();
         websiteUrl = ngo.getWebsiteUrl(); instagramUrl = ngo.getInstagramUrl();
         logoUrl = ngo.getLogoUrl();
+        mealCostPerPerson = ngo.getMealCostPerPerson() == null ? Map.of() : ngo.getMealCostPerPerson();
+        beneficiaryCounts = ngo.getBeneficiaryCounts() == null ? Map.of() : ngo.getBeneficiaryCounts();
     }
+
+    public Map<MealType, BigDecimal> getMealCostPerPerson() { return mealCostPerPerson; }
+    public Map<BeneficiaryGroup, Integer> getBeneficiaryCounts() { return beneficiaryCounts; }
 
     public String getId() { return id; }
     public String getNgoName() { return ngoName; }

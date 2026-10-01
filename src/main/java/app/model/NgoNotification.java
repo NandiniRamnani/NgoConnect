@@ -13,6 +13,9 @@ public class NgoNotification {
     private Integer requiredVolunteers;
     private Instant deadline, createdAt;
     private boolean active;
+    /** Urgent needs are listed first and badged, so a same-day shortage is not buried under older posts. */
+    private boolean urgent;
+    public boolean isUrgent() { return urgent; } public void setUrgent(boolean urgent) { this.urgent = urgent; }
     public String getId() { return id; } public void setId(String id) { this.id = id; }
     public String getNgoId() { return ngoId; } public void setNgoId(String ngoId) { this.ngoId = ngoId; }
     public String getNgoName() { return ngoName; } public void setNgoName(String ngoName) { this.ngoName = ngoName; }

@@ -22,7 +22,7 @@ echo  Starting NGOConnect backend on http://localhost:8082
 echo  Press Ctrl+C to stop.
 echo.
 
-call mvnw.cmd spring-boot:run
+call "%~dp0mvnw.cmd" spring-boot:run
 
 REM Keep the window open if the build failed, so the error stays readable.
 if errorlevel 1 (

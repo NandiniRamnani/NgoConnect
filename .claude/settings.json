@@ -8,7 +8,10 @@
       "Bash(git remote *)",
       "Bash(git ls-remote *)",
       "Bash(echo \"exit=$?\")",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(cd /d/ngoconnect-frontend && head -20 README.md)",
+      "Read(//d/ngoconnect-frontend/**)",
+      "PowerShell(Start-Process \"D:\\\\backend\\\\docs\\\\diagrams.html\")"
     ]
   }
 }

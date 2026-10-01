@@ -22,6 +22,7 @@ import java.util.UUID;
 
 @Service
 public class NgoService {
+    private static final long MAX_DOCUMENT_BYTES = 10L * 1024 * 1024;
     private final NgoRepository ngoRepository;
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
@@ -54,6 +55,11 @@ public class NgoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Registration Certificate is required");
         if (panCard == null || panCard.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PAN Card document is required");
+        // The servlet-wide upload limit was raised to 100MB for NGO videos, so documents keep their
+        // old 10MB ceiling here — they are OCR'd in memory, and nothing legitimate is that large.
+        for (MultipartFile doc : new MultipartFile[] { regCert, panCard, darpanCert, otherDoc })
+            if (doc != null && doc.getSize() > MAX_DOCUMENT_BYTES)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Each document must be 10MB or smaller");
 
         String email = request.getEmail().trim().toLowerCase();
         String pan = request.getPanNumber().trim().toUpperCase();
@@ -197,6 +203,26 @@ public class NgoService {
         if (!exists)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
         return cloudinaryService.generateSignedUrl(cloudinaryId, resourceType);
+    }
+
+    /**
+     * Find one of an NGO's uploaded documents, refusing any cloudinaryId that does not belong to
+     * that NGO — otherwise the viewer endpoint could be pointed at any private file in the account.
+     */
+    public NgoDocument findDocument(String ngoId, String cloudinaryId) {
+        Ngo ngo = ngoRepository.findById(ngoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NGO not found"));
+        if (ngo.getDocuments() == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
+        return ngo.getDocuments().stream()
+                .filter(d -> cloudinaryId.equals(d.getCloudinaryId()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+    }
+
+    /** The raw bytes of a private NGO document, fetched server-side from Cloudinary. */
+    public byte[] documentBytes(NgoDocument document) {
+        return cloudinaryService.downloadPrivate(document.getCloudinaryId(), document.getResourceType());
     }
 
     private void validateRegistration(NgoRegistrationRequest r) {

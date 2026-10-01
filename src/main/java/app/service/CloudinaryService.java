@@ -47,15 +47,40 @@ public class CloudinaryService {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Map<String, Object> uploadImage(MultipartFile file, String ngoId) {
+        return uploadImage(file, ngoId, "ngo-media");
+    }
+
+    /** Upload a gallery photo into folder/ownerId — "ngo-media" for NGOs, "user-media" for donors. */
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> uploadImage(MultipartFile file, String ownerId, String folder) {
         try {
             Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                    "folder", "ngo-media/" + ngoId, "resource_type", "image"));
+                    "folder", folder + "/" + ownerId, "resource_type", "image"));
             return result;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to upload image: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Upload a video file for an NGO's gallery. resource_type "video" is required — Cloudinary
+     * rejects a video sent as "image" — and it is also what deleteFile must be told later, which is
+     * why NgoContentService picks the resource type from the media's type when deleting.
+     */
+    public Map<String, Object> uploadVideo(MultipartFile file, String ngoId) {
+        return uploadVideo(file, ngoId, "ngo-media");
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> uploadVideo(MultipartFile file, String ownerId, String folder) {
+        try {
+            return cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "folder", folder + "/" + ownerId, "resource_type", "video"));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to upload video: " + e.getMessage());
         }
     }
 
@@ -87,6 +112,39 @@ public class CloudinaryService {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to upload image: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Fetch a private file's bytes so the backend can serve them itself.
+     *
+     * Why not just hand the browser the signed URL, as generateSignedUrl does? Because Cloudinary's
+     * private-download endpoint always responds with Content-Disposition: attachment, so the
+     * browser saves the file instead of displaying it, and with no format requested the saved
+     * file has no extension, so the operating system cannot tell what opens it. Fetching the bytes
+     * here lets the controller send them back with the right Content-Type and "inline", which is
+     * what makes a PDF or image open in a browser tab.
+     */
+    public byte[] downloadPrivate(String cloudinaryId, String resourceType) {
+        String url = generateSignedUrl(cloudinaryId, resourceType);
+        try {
+            java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                    .followRedirects(java.net.http.HttpClient.Redirect.NORMAL)
+                    .connectTimeout(java.time.Duration.ofSeconds(15))
+                    .build();
+            java.net.http.HttpResponse<byte[]> response = client.send(
+                    java.net.http.HttpRequest.newBuilder(java.net.URI.create(url))
+                            .timeout(java.time.Duration.ofSeconds(60)).GET().build(),
+                    java.net.http.HttpResponse.BodyHandlers.ofByteArray());
+            if (response.statusCode() != 200)
+                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                        "Cloudinary returned HTTP " + response.statusCode() + " for this document");
+            return response.body();
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "Could not fetch the document: " + e.getMessage());
         }
     }
 

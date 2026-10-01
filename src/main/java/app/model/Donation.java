@@ -29,7 +29,11 @@ public class Donation {
      */
     private String receiptNumber;
 
+    /** The food slot this donation sponsors, or null for an ordinary donation. */
+    private String foodSlotId;
+
     private Instant createdAt;
+    public String getFoodSlotId() { return foodSlotId; } public void setFoodSlotId(String foodSlotId) { this.foodSlotId = foodSlotId; }
     public String getId() { return id; } public void setId(String id) { this.id = id; }
     public String getNgoId() { return ngoId; } public void setNgoId(String ngoId) { this.ngoId = ngoId; }
     public String getUserId() { return userId; } public void setUserId(String userId) { this.userId = userId; }

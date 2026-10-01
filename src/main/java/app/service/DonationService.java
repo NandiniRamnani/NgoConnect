@@ -7,6 +7,7 @@ import app.enums.DonationStatus;
 import app.enums.PaymentMode;
 import app.model.Account;
 import app.model.Donation;
+import app.model.FoodSlot;
 import app.model.Ngo;
 import app.model.WalletTransaction;
 import app.repository.AccountRepository;
@@ -74,6 +75,13 @@ public class DonationService {
      */
     private final NgoBalanceService ngoBalanceService;
 
+    /**
+     * Sponsoring a food slot is a donation with a foodSlotId. This service reserves the slot before
+     * money moves and marks it FILLED once the donation is PAID. One-way dependency again: food
+     * slots know nothing about donations.
+     */
+    private final FoodSlotService foodSlotService;
+
     @Value("${razorpay.key-id}")
     private String keyId;
 
@@ -98,7 +106,8 @@ public class DonationService {
                            NgoRepository ngoRepository, RazorpayClient razorpayClient,
                            WalletService walletService, NgoBalanceService ngoBalanceService,
                            MongoTemplate mongoTemplate, ReceiptService receiptService,
-                           MailService mailService) {
+                           MailService mailService, FoodSlotService foodSlotService) {
+        this.foodSlotService = foodSlotService;
         this.receiptService = receiptService;
         this.mailService = mailService;
         this.donationRepository = donationRepository;
@@ -118,6 +127,7 @@ public class DonationService {
     public CreateOrderResponse createOrder(String donorEmail, DonationRequest request) {
         Account donor = accountRepository.findByEmail(donorEmail);
         if (donor == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User account required");
+        applyFoodSlot(request, donor.getId());
         if (!ngoRepository.existsById(request.getNgoId())) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "NGO not found");
 
         // One shared converter for both funding routes, so an amount accepted by the wallet is
@@ -132,6 +142,7 @@ public class DonationService {
         donation.setNgoId(request.getNgoId());
         donation.setAmount(request.getAmount());
         donation.setUserId(donor.getId());
+        donation.setFoodSlotId(request.getFoodSlotId());
         donation.setStatus(DonationStatus.PENDING_PAYMENT);
         donation.setCreatedAt(Instant.now());
         donation.setPaymentReference("DON-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
@@ -171,6 +182,7 @@ public class DonationService {
             return new CreateOrderResponse(donation.getId(), razorpayOrderId, amountInPaise, "INR", keyId);
         } catch (RazorpayException e) {
             donationRepository.deleteById(donation.getId()); // don't leave an orphaned record with no order behind it
+            if (request.getFoodSlotId() != null) foodSlotService.releaseHold(request.getFoodSlotId(), donor.getId());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not start payment: " + e.getMessage());
         }
     }
@@ -289,6 +301,7 @@ public class DonationService {
         // The NGO is now owed this money. It lands in their `clearing` bucket, not `available` —
         // Razorpay has not settled it to our bank yet, so it must not be withdrawable today.
         creditNgo(claimed, donorName);
+        fillFoodSlot(claimed, donorName);
         emailReceipt(claimed, donorName);
         return claimed;
     }
@@ -348,6 +361,7 @@ public class DonationService {
     public Donation donateFromWallet(String donorEmail, DonationRequest request) {
         Account donor = accountRepository.findByEmail(donorEmail);
         if (donor == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User account required");
+        applyFoodSlot(request, donor.getId());
 
         Ngo ngo = ngoRepository.findById(request.getNgoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NGO not found"));
@@ -360,6 +374,7 @@ public class DonationService {
         donation.setNgoId(request.getNgoId());
         donation.setAmount(request.getAmount());
         donation.setUserId(donor.getId());
+        donation.setFoodSlotId(request.getFoodSlotId());
         donation.setStatus(DonationStatus.PENDING_PAYMENT);
         donation.setPaymentMode(PaymentMode.WALLET_BALANCE);
         donation.setCreatedAt(Instant.now());
@@ -375,6 +390,7 @@ public class DonationService {
         } catch (RuntimeException e) {
             donation.setStatus(DonationStatus.FAILED);
             donationRepository.save(donation);
+            if (request.getFoodSlotId() != null) foodSlotService.releaseHold(request.getFoodSlotId(), donor.getId());
             throw e;
         }
 
@@ -389,12 +405,14 @@ public class DonationService {
             donation.setReceiptNumber(receiptService.nextReceiptNumber(Instant.now()));
             Donation saved = donationRepository.save(donation);
             creditNgo(saved, donor.getFullName());
+            fillFoodSlot(saved, donor.getFullName());
             emailReceipt(saved, donor.getFullName());
             return saved;
         } catch (RuntimeException e) {
             walletService.refundDonation(donor.getId(), amountPaise, donation.getId());
             donation.setStatus(DonationStatus.FAILED);
             donationRepository.save(donation);
+            if (request.getFoodSlotId() != null) foodSlotService.releaseHold(request.getFoodSlotId(), donor.getId());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Could not complete the donation. Your wallet has been refunded.");
         }
@@ -415,6 +433,36 @@ public class DonationService {
         } catch (RuntimeException e) {
             System.err.println("Could not credit NGO " + donation.getNgoId()
                     + " for donation " + donation.getId() + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * For a food-slot sponsorship, reserve the slot for this donor and overwrite the NGO and amount
+     * with the slot's own values. The browser only says WHICH meal; the server decides who is paid
+     * and how much, so a tampered request cannot sponsor a Rs.3,000 meal for Rs.1.
+     */
+    private void applyFoodSlot(DonationRequest request, String donorUserId) {
+        if (request.getFoodSlotId() == null || request.getFoodSlotId().isBlank()) {
+            request.setFoodSlotId(null);
+            return;
+        }
+        FoodSlot slot = foodSlotService.holdForCheckout(request.getFoodSlotId(), donorUserId);
+        request.setNgoId(slot.getNgoId());
+        request.setAmount(slot.getAmount());
+    }
+
+    /**
+     * Best-effort, like creditNgo: the donation is already PAID and the NGO already credited, so a
+     * slot that could not be flipped must not turn success into an error on the donor's screen.
+     */
+    private void fillFoodSlot(Donation donation, String donorName) {
+        if (donation.getFoodSlotId() == null) return;
+        try {
+            if (!foodSlotService.fillFromDonation(donation.getFoodSlotId(), donation.getId(), donation.getUserId(), donorName))
+                System.err.println("Food slot " + donation.getFoodSlotId() + " was already filled when donation "
+                        + donation.getId() + " was paid; it stands as a general donation to the NGO.");
+        } catch (RuntimeException e) {
+            System.err.println("Could not mark food slot " + donation.getFoodSlotId() + " filled: " + e.getMessage());
         }
     }
 

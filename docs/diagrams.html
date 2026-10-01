@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NGOConnect — Report Diagrams</title>
+<title>NGOConnect — UML Diagrams</title>
 <style>
   :root {
     --paper: #f6f8f5; --surface: #fff; --ink: #12241b; --muted: #5c6f63;
@@ -15,8 +15,8 @@
     background: var(--paper); color: var(--ink);
     font: 16px/1.6 "Segoe UI", system-ui, sans-serif;
   }
-  .wrap { max-width: 1000px; margin: 0 auto; }
-  header { border-bottom: 2px solid var(--ink); padding-bottom: 18px; margin-bottom: 28px; }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  header { border-bottom: 2px solid var(--ink); padding-bottom: 18px; margin-bottom: 24px; }
   .eyebrow {
     font: 500 11px/1 ui-monospace, Consolas, monospace;
     letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
@@ -24,11 +24,12 @@
   h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(28px,5vw,42px); margin: 0 0 10px; }
   .sub { color: var(--muted); font-style: italic; margin: 0; }
   .note {
-    background: #fdf6e3; color: #7c5710; border-left: 3px solid currentColor;
-    padding: 14px 18px; margin: 24px 0 36px; font-size: 14.5px;
+    background: #eef7f1; color: #14532d; border-left: 3px solid var(--accent);
+    padding: 14px 18px; margin: 20px 0 36px; font-size: 14.5px;
   }
   .note p { margin: 0; }
-  .plate { margin-bottom: 52px; }
+  .note p + p { margin-top: 8px; }
+  .plate { margin-bottom: 54px; }
   .plate-head {
     display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
     border-bottom: 1px solid var(--rule); padding-bottom: 10px; margin-bottom: 8px;
@@ -39,10 +40,10 @@
   }
   .plate-head h2 { font-family: Georgia, serif; font-size: clamp(19px,3vw,25px); margin: 0; flex: 1 1 250px; }
   .maps { font: 11px ui-monospace, Consolas, monospace; color: var(--muted); white-space: nowrap; }
-  .desc { color: var(--muted); font-size: 15px; margin: 0 0 14px; max-width: 74ch; }
+  .desc { color: var(--muted); font-size: 15px; margin: 0 0 14px; max-width: 76ch; }
   .canvas {
     background: #fff; border: 1px solid var(--border); border-radius: 2px;
-    padding: 14px; overflow-x: auto;
+    padding: 16px; overflow-x: auto; text-align: center;
   }
   .canvas img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
   .canvas.zoom img { max-width: none; }
@@ -55,6 +56,7 @@
   }
   button:hover { border-color: var(--accent); }
   footer { border-top: 2px solid var(--ink); padding-top: 20px; color: var(--muted); font-size: 14.5px; }
+  code { background: #e8efe9; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
   @media print {
     body { background: #fff; padding: 0; }
     .note, button, footer { display: none; }
@@ -66,60 +68,61 @@
 <div class="wrap">
 
 <header>
-  <p class="eyebrow">Local preview &middot; Not yet embedded</p>
-  <h1>NGOConnect — Report Diagrams</h1>
-  <p class="sub">Six figures prepared for Section 5, System Design.</p>
+  <p class="eyebrow">Rebuilt in PlantUML &middot; standard UML notation</p>
+  <h1>NGOConnect — UML Diagrams</h1>
+  <p class="sub">Six figures for Section 5, System Design.</p>
 </header>
 
 <div class="note">
-  <p><strong>These are the exact images that will go into the Word report.</strong>
-  Click “View full size” on any figure to inspect the detail. Tell me what to change, or say go ahead and I will embed them with numbered captions.</p>
+  <p><strong>These replace the earlier Mermaid versions entirely.</strong> They now use proper UML notation matching your reference images: stick-figure actors outside a system boundary, use cases as ellipses, <code>&lt;&lt;include&gt;&gt;</code> and <code>&lt;&lt;extend&gt;&gt;</code> dependencies, swimlane partitions, class boxes with three compartments, and sequence diagrams with activation bars and <code>alt</code> fragments.</p>
+  <p>Click “View full size” to inspect detail. Source <code>.puml</code> files sit beside each PNG in <code>docs/uml/</code>, so any diagram can be edited and re-rendered.</p>
 </div>
 
 <section class="plate">
   <div class="plate-head"><span class="fignum">FIG 5.1</span><h2>Use Case Diagram — Donor</h2><span class="maps">&sect;5.1</span></div>
-  <p class="desc">Everything a donor or volunteer can do, in three groups: account management, the donation and wallet flow, and event engagement. Dashed arrows are UML relationships — both donation routes <em>include</em> receipt generation, and a wallet top-up <em>extends</em> into paying from balance.</p>
-  <div class="canvas" id="c1"><img src="diagrams/01-usecase.png" alt="Use case diagram — donor"></div>
+  <p class="desc">Everything a donor or volunteer can do. The dashed dependencies are genuine UML relationships: both donation routes <code>&lt;&lt;include&gt;&gt;</code> signature verification and receipt generation, because those always happen as part of donating; paying from wallet <code>&lt;&lt;extend&gt;&gt;</code> a top-up, because that only sometimes follows.</p>
+  <div class="canvas" id="c1"><img src="uml/01-usecase-donor.png" alt="Use case diagram for the donor actor"></div>
   <div class="foot"><span class="cap">Fig 5.1 — Donor and volunteer use cases</span><button data-t="c1">View full size</button></div>
 </section>
 
 <section class="plate">
   <div class="plate-head"><span class="fignum">FIG 5.2</span><h2>Use Case Diagram — NGO &amp; Administrator</h2><span class="maps">&sect;5.1</span></div>
-  <p class="desc">Split from Fig 5.1 so both stay readable. Covers NGO onboarding with automated document verification, the finance and payout cycle, event management, and the administrator’s approval powers over both NGO registrations and withdrawal requests.</p>
-  <div class="canvas" id="c2"><img src="diagrams/01b-usecase-ngo-admin.png" alt="Use case diagram — NGO and administrator"></div>
+  <p class="desc">Two actors sharing one system boundary. The NGO handles its own onboarding, content, finance and events; the administrator holds the two approval powers the platform's trust model depends on — admitting organisations, and releasing money.</p>
+  <div class="canvas" id="c2"><img src="uml/02-usecase-ngo-admin.png" alt="Use case diagram for NGO and administrator actors"></div>
   <div class="foot"><span class="cap">Fig 5.2 — NGO and administrator use cases</span><button data-t="c2">View full size</button></div>
 </section>
 
 <section class="plate">
   <div class="plate-head"><span class="fignum">FIG 5.3</span><h2>Activity Diagram — Donation Process</h2><span class="maps">&sect;5.2</span></div>
-  <p class="desc">The complete donation flow with both funding routes side by side. The wallet route finishes in a single request; the gateway route takes two and passes through signature verification. Both converge on crediting the NGO and issuing the 80G receipt, and both guard against double-crediting with an atomic claim.</p>
-  <div class="canvas" id="c3"><img src="diagrams/03-activity.png" alt="Activity diagram — donation process"></div>
-  <div class="foot"><span class="cap">Fig 5.3 — Donation process activity diagram</span><button data-t="c3">View full size</button></div>
+  <p class="desc">Three swimlanes — DONOR, SYSTEM and PAYMENT GATEWAY — so it is visible at a glance which participant performs each step. The two funding routes diverge at a decision node and converge again on crediting the NGO and issuing the receipt.</p>
+  <div class="canvas" id="c3"><img src="uml/03-activity-donation.png" alt="Activity diagram of the donation process with swimlanes"></div>
+  <div class="foot"><span class="cap">Fig 5.3 — Donation process</span><button data-t="c3">View full size</button></div>
 </section>
 
 <section class="plate">
-  <div class="plate-head"><span class="fignum">FIG 5.4</span><h2>Sequence Diagram — Wallet Top-Up</h2><span class="maps">&sect;5.3 Interaction</span></div>
-  <p class="desc">The interaction diagram the template asks for, traced through the most involved flow in the system. It shows all three steps of a top-up, the two alternative outcomes at signature verification, and the webhook safety net that credits the wallet even when the browser never comes back.</p>
-  <div class="canvas" id="c4"><img src="diagrams/04-sequence.png" alt="Sequence diagram — wallet top-up"></div>
-  <div class="foot"><span class="cap">Fig 5.4 — Wallet top-up interaction diagram</span><button data-t="c4">View full size</button></div>
+  <div class="plate-head"><span class="fignum">FIG 5.4</span><h2>Activity Diagram — NGO Registration &amp; Verification</h2><span class="maps">&sect;5.2</span></div>
+  <p class="desc">The trust workflow the whole platform rests on. Includes the branch between reading a PDF's text layer directly and falling back to OCR for scanned documents, the three verification outcomes, and the administrator's approval decision.</p>
+  <div class="canvas" id="c4"><img src="uml/04-activity-ngo-registration.png" alt="Activity diagram of NGO registration and document verification"></div>
+  <div class="foot"><span class="cap">Fig 5.4 — NGO registration and verification</span><button data-t="c4">View full size</button></div>
 </section>
 
 <section class="plate">
-  <div class="plate-head"><span class="fignum">FIG 5.5</span><h2>Class Diagram</h2><span class="maps">&sect;5.4</span></div>
-  <p class="desc">Domain entities with their attributes and multiplicities, plus the five services that own the money paths. Solid lines are data relationships; dashed lines show which service manages which entity — the single-owner rule that keeps all balance arithmetic in one place.</p>
-  <div class="canvas" id="c5"><img src="diagrams/02-class.png" alt="Class diagram"></div>
-  <div class="foot"><span class="cap">Fig 5.5 — Class diagram</span><button data-t="c5">View full size</button></div>
+  <div class="plate-head"><span class="fignum">FIG 5.5</span><h2>Sequence Diagram — Donate via Gateway</h2><span class="maps">&sect;5.3 Interaction</span></div>
+  <p class="desc">Uses the analysis stereotypes from your reference: an actor, a boundary (the screen), a control (the coordinating object) and entities (the database and gateway). Activation bars show when each object is active, dashed arrows are returns, and the <code>alt</code> fragment covers both signature-verification outcomes.</p>
+  <div class="canvas" id="c5"><img src="uml/05-sequence-donation.png" alt="Sequence diagram of a gateway donation"></div>
+  <div class="foot"><span class="cap">Fig 5.5 — Donate via payment gateway</span><button data-t="c5">View full size</button></div>
 </section>
 
 <section class="plate">
-  <div class="plate-head"><span class="fignum">FIG 5.6</span><h2>System Architecture &amp; Flow</h2><span class="maps">&sect;2.5 / &sect;5</span></div>
-  <p class="desc">The seven-layer architecture, from the React frontend through security, controllers, services and persistence down to MongoDB Atlas, with external services alongside. The dotted line from Razorpay back to the webhook controller is the inbound path that makes payment recovery possible.</p>
-  <div class="canvas" id="c6"><img src="diagrams/05-systemflow.png" alt="System architecture and flow"></div>
-  <div class="foot"><span class="cap">Fig 5.6 — System architecture and flow</span><button data-t="c6">View full size</button></div>
+  <div class="plate-head"><span class="fignum">FIG 5.6</span><h2>Class Diagram</h2><span class="maps">&sect;5.4</span></div>
+  <p class="desc">Sixteen classes in standard three-compartment notation — name, attributes prefixed <code>-</code> for private, operations prefixed <code>+</code> for public. Every association carries a name and multiplicities at both ends.</p>
+  <div class="canvas" id="c6"><img src="uml/06-class.png" alt="Class diagram of NGOConnect entities"></div>
+  <div class="foot"><span class="cap">Fig 5.6 — Class diagram</span><button data-t="c6">View full size</button></div>
 </section>
 
 <footer>
-  <p>Source files are in <code>docs/diagrams/</code> — each diagram has a <code>.mmd</code> (Mermaid source) alongside its <code>.png</code>, so any of them can be edited and re-rendered.</p>
+  <p>Sources in <code>docs/uml/</code> — each <code>.puml</code> renders with
+  <code>java -jar docs/tools/plantuml.jar -tpng docs/uml/&lt;file&gt;.puml</code>.</p>
 </footer>
 
 </div>

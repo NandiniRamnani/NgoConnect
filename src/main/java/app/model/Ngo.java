@@ -1,11 +1,16 @@
 package app.model;
 
+import app.enums.BeneficiaryGroup;
+import app.enums.MealType;
 import app.enums.VerificationStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 @Document(collection = "ngos")
 public class Ngo {
@@ -55,6 +60,16 @@ public class Ngo {
     // Uploaded documents stored privately in Cloudinary
     private List<NgoDocument> documents = new ArrayList<>();
 
+    /**
+     * Food pricing the NGO sets once, instead of typing a total for every slot: what one person's
+     * breakfast, lunch and dinner cost, and how many people it looks after in each group. A slot's
+     * price is then costPerPerson x peopleCount, worked out on the server (see FoodSlotService),
+     * and donors see the same breakdown the NGO entered. Only BREAKFAST/LUNCH/DINNER are stored;
+     * a whole day is the sum of the three.
+     */
+    private Map<MealType, BigDecimal> mealCostPerPerson = new EnumMap<>(MealType.class);
+    private Map<BeneficiaryGroup, Integer> beneficiaryCounts = new EnumMap<>(BeneficiaryGroup.class);
+
     public String getId() { return id; } public void setId(String id) { this.id = id; }
     public String getNgoName() { return ngoName; } public void setNgoName(String v) { this.ngoName = v; }
     public String getEmail() { return email; } public void setEmail(String v) { this.email = v; }
@@ -85,4 +100,6 @@ public class Ngo {
     public String getInstagramUrl() { return instagramUrl; } public void setInstagramUrl(String v) { this.instagramUrl = v; }
     public String getLinkedinUrl() { return linkedinUrl; } public void setLinkedinUrl(String v) { this.linkedinUrl = v; }
     public List<NgoDocument> getDocuments() { return documents; } public void setDocuments(List<NgoDocument> v) { this.documents = v; }
+    public Map<MealType, BigDecimal> getMealCostPerPerson() { return mealCostPerPerson; } public void setMealCostPerPerson(Map<MealType, BigDecimal> v) { this.mealCostPerPerson = v; }
+    public Map<BeneficiaryGroup, Integer> getBeneficiaryCounts() { return beneficiaryCounts; } public void setBeneficiaryCounts(Map<BeneficiaryGroup, Integer> v) { this.beneficiaryCounts = v; }
 }

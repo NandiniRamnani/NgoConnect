@@ -32,8 +32,15 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/ngos/*/media/photo", "/api/ngos/*/media/video",
-                        "/api/ngos/*/notifications", "/api/ngos/*/events").hasRole("NGO")
-                .requestMatchers(HttpMethod.DELETE, "/api/ngos/*/media/*", "/api/ngos/*/events/*").hasRole("NGO")
+                        "/api/ngos/*/media/video/upload", "/api/ngos/*/notifications", "/api/ngos/*/events",
+                        "/api/ngos/*/food-slots").hasRole("NGO")
+                .requestMatchers(HttpMethod.DELETE, "/api/ngos/*/media/*", "/api/ngos/*/events/*",
+                        "/api/ngos/*/food-slots/*").hasRole("NGO")
+                // An NGO's own list of needs includes closed ones, and closing / filling are writes.
+                .requestMatchers(HttpMethod.GET, "/api/ngos/*/notifications").hasRole("NGO")
+                .requestMatchers(HttpMethod.PATCH, "/api/ngos/*/notifications/*/close",
+                        "/api/ngos/*/food-slots/*/fill", "/api/ngos/*/food-slots/*/reopen").hasRole("NGO")
+                .requestMatchers(HttpMethod.PUT, "/api/ngos/*/food-settings").hasRole("NGO")
                 .requestMatchers(HttpMethod.PATCH, "/api/events/enrollments/*/attend").hasRole("NGO")
                 .requestMatchers(HttpMethod.GET, "/api/events/*/enrollments").hasRole("NGO")
                 .requestMatchers(HttpMethod.POST, "/api/donations/**", "/api/events/*/enroll").hasRole("USER")
@@ -60,6 +67,8 @@ public class SecurityConfig {
                 // Profile pictures. Any logged-in account can change its OWN picture — the service
                 // resolves the target from the authenticated identity (donors) or checks ownership
                 // of the named NGO (organisations), so this rule only has to keep strangers out.
+                // The same goes for a donor's profile gallery under /api/profile/media; viewing a
+                // gallery (/api/users/*/media) is public, like an NGO's.
                 .requestMatchers("/api/profile/**").authenticated()
                 .requestMatchers("/api/chats/**").authenticated()
                 .requestMatchers("/api/users/notifications/**").authenticated()
