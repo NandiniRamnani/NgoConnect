@@ -86,7 +86,8 @@ public class AccountService {
     this.ngoRepository = ngoRepository;
     this.passwordEncoder = passwordEncoder;
     this.mailService = mailService;
-    this.frontendUrl = frontendUrl;
+    // APP_FRONTEND_URL may list several origins for CORS; reset links use the first (the main site).
+    this.frontendUrl = frontendUrl.split(",")[0].trim().replaceAll("/+$", "");
     this.resetTokenMinutes = resetTokenMinutes;
 }
     public AccountResponse register(Account account) {

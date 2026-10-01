@@ -1,0 +1,17 @@
+# Keep the build context small and secret-free: Docker copies this folder to the builder, and
+# only pom.xml and src/ are needed. Above all, .env must never end up inside an image.
+.env
+.env.*
+!.env.example
+target/
+.m2/
+.mvn/
+.git
+.github/
+.claude/
+docs/
+sample-test-documents/
+*.log
+*.docx
+*.bat
+*.py

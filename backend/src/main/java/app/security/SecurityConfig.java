@@ -82,12 +82,21 @@ public class SecurityConfig {
 
     /**
      * One rule for every endpoint, instead of a different hardcoded port list per controller.
-     * Accepts any localhost port so it keeps working no matter which port the dev server picks.
+     * Accepts any localhost port so it keeps working no matter which port the dev server picks,
+     * plus the deployed frontend's address(es) from APP_FRONTEND_URL — comma-separated, so a
+     * custom domain and the hosting provider's own URL can both be allowed.
      */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.frontend-url:http://localhost:5173}") String frontendUrls) {
+        List<String> origins = new java.util.ArrayList<>(List.of("http://localhost:*", "http://127.0.0.1:*"));
+        for (String url : frontendUrls.split(",")) {
+            // A trailing slash would never match: browsers send the Origin header without one.
+            String origin = url.trim().replaceAll("/+$", "");
+            if (!origin.isEmpty()) origins.add(origin);
+        }
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
+        config.setAllowedOriginPatterns(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

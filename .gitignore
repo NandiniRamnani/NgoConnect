@@ -1,0 +1,15 @@
+# Each app has its own .gitignore in backend/ and frontend/; this covers the repository root.
+
+# Secrets, wherever they end up
+.env
+.env.local
+!.env.example
+
+# Editors & OS noise
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Local Claude Code settings
+.claude/settings.local.json

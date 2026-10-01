@@ -1,0 +1,40 @@
+# Render "Blueprint" for the backend: Render reads this file and creates the service for you
+# (New + → Blueprint → pick this repo). Values marked sync: false are secrets — Render asks for
+# them in its dashboard, so they never live in this repository.
+services:
+  - type: web
+    name: ngoconnect-backend
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/ngos
+    # Only redeploy when backend files change — a frontend-only commit leaves it alone.
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: APP_FRONTEND_URL          # your Vercel URL, e.g. https://ngoconnect.vercel.app
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: NGO_ADMIN_USERNAME
+        sync: false
+      - key: NGO_ADMIN_PASSWORD
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
